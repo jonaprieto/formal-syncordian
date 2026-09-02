@@ -17,22 +17,20 @@ def has_unique_ids (doc : Document Position Content Peer) : Prop :=
     a.id = b.id →
     a = b
 
+variable [spec : PositionSpec Position]
+
 def has_present_parents (doc : Document Position Content Peer) : Prop :=
   ∀ line, line ∈ doc.lines →
-    line.id = LineId.bottom ∨
-      line.id = LineId.top ∨
+    line.isBottom ∨
+      line.isTop ∨
       ((∃ parent ∈ doc.lines, parent.id = line.fixed.parentLeft) ∧
         ∃ parent ∈ doc.lines, parent.id = line.fixed.parentRight)
 
-variable [spec : PositionSpec Position]
-
 def has_bottom (doc : Document Position Content Peer) : Prop :=
-  ∃ line ∈ doc.lines,
-    line.id = LineId.bottom ∧ line.position = spec.bottom
+  ∃ line ∈ doc.lines, line.isBottom
 
 def has_top (doc : Document Position Content Peer) : Prop :=
-  ∃ line ∈ doc.lines,
-    line.id = LineId.top ∧ line.position = spec.top
+  ∃ line ∈ doc.lines, line.isTop
 
 structure IsWellFormed (doc : Document Position Content Peer) : Prop where
   unique_ids : has_unique_ids doc
@@ -47,7 +45,8 @@ abbrev WellFormedDocument (Position Content Peer : Type) [PositionSpec Position]
 theorem WellFormedDocument.bottom_unique
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
-    (ha : a ∈ doc.val.lines) (hb : b ∈ doc.val.lines)
+    (ha : a ∈ doc.val.lines)
+    (hb : b ∈ doc.val.lines)
     (ha_id : a.id = LineId.bottom)
     (hb_id : b.id = LineId.bottom) :
     a = b :=
@@ -56,7 +55,8 @@ theorem WellFormedDocument.bottom_unique
 theorem WellFormedDocument.top_unique
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
-    (ha : a ∈ doc.val.lines) (hb : b ∈ doc.val.lines)
+    (ha : a ∈ doc.val.lines)
+    (hb : b ∈ doc.val.lines)
     (ha_id : a.id = LineId.top)
     (hb_id : b.id = LineId.top) :
     a = b :=
