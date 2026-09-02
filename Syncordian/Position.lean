@@ -61,6 +61,9 @@ class PositionSpec (α : Type) where
   lt_top : ∀ {x}, x ≠ top → ltPos x top
   dense : ∀ {a b}, ltPos a b → ∃ c, ltPos a c ∧ ltPos c b
 
+instance [spec : PositionSpec α] : LT α where
+  lt := spec.ltPos
+
 theorem exists_middle {α : Type} [spec : PositionSpec α] {a b : α}
     (h : spec.ltPos a b) : ∃ c, spec.ltPos a c ∧ spec.ltPos c b :=
   spec.dense h

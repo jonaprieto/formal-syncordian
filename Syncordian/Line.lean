@@ -79,6 +79,10 @@ abbrev Line.isTop {Peer} (line : Line Position Content Peer)
   [spec : PositionSpec Position] : Prop :=
   line.isTopSentinel ∧ line.position = spec.top
 
+abbrev Line.isBoundary (line : Line Position Content Peer)
+  [spec : PositionSpec Position] : Prop :=
+  line.isBottom ∨ line.isTop
+
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus
     (line : Line Position Content Peer)

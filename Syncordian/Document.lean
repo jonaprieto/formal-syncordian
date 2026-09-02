@@ -21,10 +21,20 @@ variable [spec : PositionSpec Position]
 
 def has_present_parents (doc : Document Position Content Peer) : Prop :=
   ∀ line, line ∈ doc.lines →
-    line.isBottom ∨
-      line.isTop ∨
+    line.isBoundary ∨
       ((∃ parent ∈ doc.lines, parent.id = line.fixed.parentLeft) ∧
         ∃ parent ∈ doc.lines, parent.id = line.fixed.parentRight)
+
+def has_parent_intervals (doc : Document Position Content Peer) : Prop :=
+  ∀ line, line ∈ doc.lines →
+    line.isBoundary ∨
+      ∀ left right,
+        left ∈ doc.lines →
+        left.id = line.fixed.parentLeft →
+        right ∈ doc.lines →
+        right.id = line.fixed.parentRight →
+        left.position < line.position ∧
+          line.position < right.position
 
 def has_bottom (doc : Document Position Content Peer) : Prop :=
   ∃ line ∈ doc.lines, line.isBottom
@@ -35,6 +45,7 @@ def has_top (doc : Document Position Content Peer) : Prop :=
 structure IsWellFormed (doc : Document Position Content Peer) : Prop where
   unique_ids : has_unique_ids doc
   present_parents : has_present_parents doc
+  parent_intervals : has_parent_intervals doc
   bottom : has_bottom doc
   top : has_top doc
 
