@@ -61,17 +61,18 @@ structure Line
 
 variable {Position Content Peer : Type}
 
--- Shorthands for the two fields the document layer talks about. `abbrev`, so
--- they stay definitionally `line.fixed.*` and proofs by `rfl` keep working.
+-- Shorthands for the fields callers reach for most. `abbrev`, so they stay
+-- definitionally the underlying projection and proofs by `rfl` keep working.
 abbrev Line.id (line : Line Position Content Peer) : LineId Peer := line.fixed.id
 abbrev Line.position (line : Line Position Content Peer) : Position := line.fixed.position
+abbrev Line.status (line : Line Position Content Peer) : Status := line.state.status
 
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus
     (line : Line Position Content Peer)
     (next : Status)
     -- prop. obligation:
-    (_ : line.state.status.canBecome next) :
+    (_ : line.status.canBecome next) :
     Line Position Content Peer :=
   { line with state := {
     line.state with status := next
@@ -82,7 +83,7 @@ def Line.setStatus
 theorem Line.setStatus_fixed
     (line : Line Position Content Peer)
     (next : Status)
-    (h : line.state.status.canBecome next) :
+    (h : line.status.canBecome next) :
     (line.setStatus next h).fixed = line.fixed := by
   rfl
 
@@ -90,7 +91,7 @@ theorem Line.setStatus_fixed
 theorem Line.setStatus_responses
     (line : Line Position Content Peer)
     (next : Status)
-    (h : line.state.status.canBecome next) :
+    (h : line.status.canBecome next) :
     (line.setStatus next h).state.responses = line.state.responses := by
   rfl
 
