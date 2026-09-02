@@ -1,0 +1,5 @@
+name = "syncordian"
+defaultTargets = ["Syncordian"]
+
+[[lean_lib]]
+name = "Syncordian"

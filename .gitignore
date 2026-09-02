@@ -1,0 +1,19 @@
+# Lake build output
+/.lake/
+/build/
+*.olean
+*.ilean
+*.trace
+*.hash
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+\#*\#
+.\#*
+
+# OS
+.DS_Store
+Thumbs.db
