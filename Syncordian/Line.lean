@@ -59,8 +59,10 @@ structure Line
   fixed : LineFixed Position Content Peer
   state : LineState Peer
 
+variable {Position Content Peer : Type}
+
 -- A transition can only update the state; `fixed` is carried forward unchanged.
-def Line.setStatus {Position Content Peer : Type}
+def Line.setStatus
     (line : Line Position Content Peer)
     (next : Status)
     -- prop. obligation:
@@ -72,7 +74,7 @@ def Line.setStatus {Position Content Peer : Type}
   }
 
 -- only changes the state no the fixed data
-theorem Line.setStatus_fixed {Position Content Peer : Type}
+theorem Line.setStatus_fixed
     (line : Line Position Content Peer)
     (next : Status)
     (h : line.state.status.canBecome next) :
@@ -80,13 +82,12 @@ theorem Line.setStatus_fixed {Position Content Peer : Type}
   rfl
 
 -- same for responses, nothing changes.
-theorem Line.setStatus_responses {Position Content Peer : Type}
+theorem Line.setStatus_responses
     (line : Line Position Content Peer)
     (next : Status)
     (h : line.state.status.canBecome next) :
     (line.setStatus next h).state.responses = line.state.responses := by
   rfl
-
 
 
 end Syncordian
