@@ -14,18 +14,18 @@ def has_unique_ids (doc : Document Position Content Peer) : Prop :=
   ∀ ⦃a b⦄,
     a ∈ doc.lines →
     b ∈ doc.lines →
-    a.fixed.id = b.fixed.id →
+    a.id = b.id →
     a = b
 
 variable [spec : PositionSpec Position]
 
 def has_bottom (doc : Document Position Content Peer) : Prop :=
   ∃ line ∈ doc.lines,
-    line.fixed.id = LineId.bottom ∧ line.fixed.position = spec.bottom
+    line.id = LineId.bottom ∧ line.position = spec.bottom
 
 def has_top (doc : Document Position Content Peer) : Prop :=
   ∃ line ∈ doc.lines,
-    line.fixed.id = LineId.top ∧ line.fixed.position = spec.top
+    line.id = LineId.top ∧ line.position = spec.top
 
 structure IsWellFormed (doc : Document Position Content Peer) : Prop where
   unique_ids : has_unique_ids doc
@@ -40,8 +40,8 @@ theorem WellFormedDocument.bottom_unique
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines) (hb : b ∈ doc.val.lines)
-    (ha_id : a.fixed.id = LineId.bottom)
-    (hb_id : b.fixed.id = LineId.bottom) :
+    (ha_id : a.id = LineId.bottom)
+    (hb_id : b.id = LineId.bottom) :
     a = b :=
   doc.property.unique_ids ha hb (ha_id.trans hb_id.symm)
 
@@ -49,8 +49,8 @@ theorem WellFormedDocument.top_unique
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines) (hb : b ∈ doc.val.lines)
-    (ha_id : a.fixed.id = LineId.top)
-    (hb_id : b.fixed.id = LineId.top) :
+    (ha_id : a.id = LineId.top)
+    (hb_id : b.id = LineId.top) :
     a = b :=
   doc.property.unique_ids ha hb (ha_id.trans hb_id.symm)
 

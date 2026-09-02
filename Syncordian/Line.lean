@@ -61,6 +61,11 @@ structure Line
 
 variable {Position Content Peer : Type}
 
+-- Shorthands for the two fields the document layer talks about. `abbrev`, so
+-- they stay definitionally `line.fixed.*` and proofs by `rfl` keep working.
+abbrev Line.id (line : Line Position Content Peer) : LineId Peer := line.fixed.id
+abbrev Line.position (line : Line Position Content Peer) : Position := line.fixed.position
+
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus
     (line : Line Position Content Peer)
