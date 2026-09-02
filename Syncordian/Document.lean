@@ -17,6 +17,13 @@ def has_unique_ids (doc : Document Position Content Peer) : Prop :=
     a.id = b.id →
     a = b
 
+def has_present_parents (doc : Document Position Content Peer) : Prop :=
+  ∀ line, line ∈ doc.lines →
+    line.id = LineId.bottom ∨
+      line.id = LineId.top ∨
+      ((∃ parent ∈ doc.lines, parent.id = line.fixed.parentLeft) ∧
+        ∃ parent ∈ doc.lines, parent.id = line.fixed.parentRight)
+
 variable [spec : PositionSpec Position]
 
 def has_bottom (doc : Document Position Content Peer) : Prop :=
@@ -29,6 +36,7 @@ def has_top (doc : Document Position Content Peer) : Prop :=
 
 structure IsWellFormed (doc : Document Position Content Peer) : Prop where
   unique_ids : has_unique_ids doc
+  present_parents : has_present_parents doc
   bottom : has_bottom doc
   top : has_top doc
 
