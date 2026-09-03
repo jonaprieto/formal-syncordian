@@ -67,21 +67,22 @@ abbrev Line.id (line : Line Position Content Peer) : LineId Peer := line.fixed.i
 abbrev Line.position (line : Line Position Content Peer) : Position := line.fixed.position
 abbrev Line.status (line : Line Position Content Peer) : Status := line.state.status
 
-abbrev Line.isBottomSentinel {Peer} (line : Line Position Content Peer) :=
- line.fixed.id = LineId.bottom
-abbrev Line.isBottom {Peer} (line : Line Position Content Peer)
+abbrev Line.isBottomSentinel (line : Line Position Content Peer) : Prop :=
+  line.fixed.id = LineId.bottom
+
+abbrev Line.isTopSentinel (line : Line Position Content Peer) : Prop :=
+  line.fixed.id = LineId.top
+
+abbrev Line.isBoundary (line : Line Position Content Peer) : Prop :=
+  line.isBottomSentinel ∨ line.isTopSentinel
+
+abbrev Line.isBottom (line : Line Position Content Peer)
   [spec : PositionSpec Position] : Prop :=
   line.isBottomSentinel ∧ line.position = spec.bottom
 
-abbrev Line.isTopSentinel {Peer} (line : Line Position Content Peer) :=
- line.fixed.id = LineId.top
-abbrev Line.isTop {Peer} (line : Line Position Content Peer)
+abbrev Line.isTop (line : Line Position Content Peer)
   [spec : PositionSpec Position] : Prop :=
   line.isTopSentinel ∧ line.position = spec.top
-
-abbrev Line.isBoundary (line : Line Position Content Peer)
-  [spec : PositionSpec Position] : Prop :=
-  line.isBottom ∨ line.isTop
 
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus
