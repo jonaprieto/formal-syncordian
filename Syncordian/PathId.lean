@@ -19,21 +19,26 @@ instance : Ord PathId where
     | _, .supremum => .lt
     | .path a, .path b => compare a b
 
+instance : LT PathId := ltOfOrd
+
+instance : LE PathId := leOfOrd
+
 theorem PathId.infimum_lt_path
     (p : Path)
-    : compare PathId.infimum (.path p) = .lt := by
+    : PathId.infimum < .path p := by
   rfl
 
 theorem PathId.path_lt_supremum
     (p : Path)
-    : compare (.path p) PathId.supremum = .lt := by
+    : PathId.path p < .supremum := by
   rfl
 
-#guard compare
-    (PathId.path { head := { digit := 3, peer := 1 }, tail := [] })
-    (PathId.path { head := { digit := 3, peer := 1 },
-                   tail := [{ digit := 7, peer := 2 }] })
-  = .lt
+#guard
+  (PathId.path { head := { digit := 3, peer := 1 }, tail := [] })
+    < PathId.path { head := { digit := 3, peer := 1 },
+                    tail := [{ digit := 7, peer := 2 }] }
+
+#guard PathId.infimum ≤ PathId.supremum
 
 def lastSegOf : Segment → List Segment → Segment
   | s, [] => s

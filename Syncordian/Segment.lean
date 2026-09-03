@@ -23,6 +23,8 @@ theorem Segment.lt_def
 instance (a b : Segment) : Decidable (a < b) :=
   decidable_of_iff _ Segment.lt_def.symm
 
+#guard ({ digit := 1, peer := 0 } : Segment) < { digit := 1, peer := 2 }
+
 theorem Segment.compare_eq_eq
     {a b : Segment}
     : compare a b = .eq ↔ a = b := by
