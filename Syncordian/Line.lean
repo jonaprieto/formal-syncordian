@@ -114,6 +114,26 @@ abbrev Line.isTop
     : Prop :=
   line.isTopSentinel ∧ line.position = spec.top
 
+def Line.lt
+    [PositionSpec Position]
+    [LT Peer]
+    (a b : Line Position Content Peer)
+    : Prop :=
+  a.position < b.position ∨ (a.position = b.position ∧ a.id < b.id)
+
+instance instLTLine
+    [PositionSpec Position]
+    [LT Peer]
+    : LT (Line Position Content Peer) where
+  lt := Line.lt
+
+def Line.Sorted
+    [PositionSpec Position]
+    [LT Peer]
+    : List (Line Position Content Peer) → Prop
+  | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
+  | _ => True
+
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus
     (line : Line Position Content Peer)
