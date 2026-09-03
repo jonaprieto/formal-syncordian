@@ -5,3 +5,4 @@ import Syncordian.Line
 import Syncordian.Document
 import Syncordian.Operation
 import Syncordian.Peer
+import Syncordian.PathIdOrder
