@@ -63,4 +63,80 @@ theorem PathId.path_lt_supremum
                    tail := [{ digit := 7, peer := 2 }] })
   = .lt
 
+def lastSegOf : Segment → List Segment → Segment
+  | s, [] => s
+  | _, t :: ts => lastSegOf t ts
+
+def Path.lastSeg (p : Path) : Segment := lastSegOf p.head p.tail
+
+def Path.WellFormed (p : Path) : Prop := 0 < p.lastSeg.peer
+
+def PathId.WellFormed : PathId → Prop
+  | .path p => p.WellFormed
+  | _ => True
+
+def Segment.least : Segment := { digit := 0, peer := 1 }
+
+def belowL : List Segment → List Segment
+  | [] => []
+  | [s] => [{ s with peer := s.peer - 1 }, Segment.least]
+  | s :: ts => s :: belowL ts
+
+def Path.below (p : Path) : Path :=
+  match p.tail with
+  | [] => { head := { p.head with peer := p.head.peer - 1 }, tail := [Segment.least] }
+  | t :: ts => { head := p.head, tail := belowL (t :: ts) }
+
+def Path.ext (p : Path) : Path := { head := p.head, tail := p.tail ++ [Segment.least] }
+
+theorem Path.below_toList (p : Path) : p.below.toList = belowL p.toList := by
+  obtain ⟨hd, tl⟩ := p
+  cases tl <;> rfl
+
+theorem Path.ext_toList (p : Path) : p.ext.toList = p.toList ++ [Segment.least] := rfl
+
+theorem lastSegOf_belowL
+    (x s : Segment)
+    (ts : List Segment)
+    : lastSegOf x (belowL (s :: ts)) = Segment.least := by
+  induction ts generalizing x s with
+  | nil => rfl
+  | cons t ts ih => exact ih s t
+
+theorem lastSegOf_append_least
+    (x : Segment)
+    (ys : List Segment)
+    : lastSegOf x (ys ++ [Segment.least]) = Segment.least := by
+  induction ys generalizing x with
+  | nil => rfl
+  | cons y ys ih => exact ih y
+
+theorem belowL_cons
+    (s : Segment)
+    (ts : List Segment)
+    : ∃ (y : Segment) (ys : List Segment), belowL (s :: ts) = y :: ys := by
+  cases ts with
+  | nil => exact ⟨_, _, rfl⟩
+  | cons t ts => exact ⟨_, _, rfl⟩
+
+theorem Path.below_wellFormed (p : Path) : p.below.WellFormed := by
+  obtain ⟨hd, tl⟩ := p
+  cases tl with
+  | nil => exact Nat.one_pos
+  | cons t ts =>
+    show 0 < (lastSegOf hd (belowL (t :: ts))).peer
+    rw [lastSegOf_belowL]
+    exact Nat.one_pos
+
+theorem Path.ext_wellFormed (p : Path) : p.ext.WellFormed := by
+  show 0 < (lastSegOf p.head (p.tail ++ [Segment.least])).peer
+  rw [lastSegOf_append_least]
+  exact Nat.one_pos
+
+theorem Path.toList_inj {p q : Path} (h : p.toList = q.toList) : p = q := by
+  obtain ⟨ph, pt⟩ := p
+  obtain ⟨qh, qt⟩ := q
+  simp [Path.toList] at h
+  simp [h.1, h.2]
+
 end Syncordian
