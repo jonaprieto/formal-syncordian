@@ -10,7 +10,9 @@ structure Document where
 variable {Position Content Peer}
 
 -- No two lines in a document share an identity.
-def Document.HasUniqueIds (doc : Document Position Content Peer) : Prop :=
+def Document.HasUniqueIds
+    (doc : Document Position Content Peer)
+    : Prop :=
   ∀ ⦃a b⦄,
     a ∈ doc.lines →
     b ∈ doc.lines →
@@ -19,13 +21,17 @@ def Document.HasUniqueIds (doc : Document Position Content Peer) : Prop :=
 
 variable [spec : PositionSpec Position]
 
-def Document.HasPresentParents (doc : Document Position Content Peer) : Prop :=
+def Document.HasPresentParents
+    (doc : Document Position Content Peer)
+    : Prop :=
   ∀ line, line ∈ doc.lines →
     line.isBoundary ∨
       ((∃ parent ∈ doc.lines, parent.id = line.fixed.parentLeft) ∧
         ∃ parent ∈ doc.lines, parent.id = line.fixed.parentRight)
 
-def Document.HasParentIntervals (doc : Document Position Content Peer) : Prop :=
+def Document.HasParentIntervals
+    (doc : Document Position Content Peer)
+    : Prop :=
   ∀ line, line ∈ doc.lines →
     line.isBoundary ∨
       ∀ left right,
@@ -36,13 +42,19 @@ def Document.HasParentIntervals (doc : Document Position Content Peer) : Prop :=
         left.position < line.position ∧
           line.position < right.position
 
-def Document.HasBottom (doc : Document Position Content Peer) : Prop :=
+def Document.HasBottom
+    (doc : Document Position Content Peer)
+    : Prop :=
   ∃ line ∈ doc.lines, line.isBottom
 
-def Document.HasTop (doc : Document Position Content Peer) : Prop :=
+def Document.HasTop
+    (doc : Document Position Content Peer)
+    : Prop :=
   ∃ line ∈ doc.lines, line.isTop
 
-structure Document.WellFormed (doc : Document Position Content Peer) : Prop where
+structure Document.WellFormed
+    (doc : Document Position Content Peer)
+    : Prop where
   uniqueIds : Document.HasUniqueIds doc
   presentParents : Document.HasPresentParents doc
   parentIntervals : Document.HasParentIntervals doc
