@@ -297,13 +297,13 @@ theorem PathId.lt_total
          · exact Or.inr (PathId.lt_path.mpr hr))
 
 instance : PositionSpec { x : PathId // x.WellFormed } where
-  ltPos a b := PathId.lt a.val b.val
-  bottom := ⟨.infimum, trivial⟩
-  top := ⟨.supremum, trivial⟩
-  irrefl x := PathId.lt_irrefl x.val
+  ltPos a b     := PathId.lt a.val b.val
+  bottom        := ⟨.infimum, trivial⟩
+  top           := ⟨.supremum, trivial⟩
+  irrefl x      := PathId.lt_irrefl x.val
   trans hab hbc := PathId.lt_trans hab hbc
-  total a b h := PathId.lt_total a.val b.val fun hv => h (Subtype.ext hv)
-  bottom_lt := by
+  total a b h   := PathId.lt_total a.val b.val fun hv => h (Subtype.ext hv)
+  bottom_lt     := by
     intro x hx
     exact PathId.infimum_lt fun hv => hx (Subtype.ext hv)
   lt_top := by
