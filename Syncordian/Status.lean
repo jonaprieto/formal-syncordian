@@ -22,8 +22,11 @@ def Status.canBecome (before after : Status) : Prop :=
 theorem Status.canBecome_refl (s : Status) : s.canBecome s := by
   exact Nat.le_refl _
 
-theorem Status.canBecome_trans {a b c : Status}
-    (hab : a.canBecome b) (hbc : b.canBecome c) : a.canBecome c := by
+theorem Status.canBecome_trans
+    {a b c : Status}
+    (hab : a.canBecome b)
+    (hbc : b.canBecome c)
+    : a.canBecome c := by
   exact Nat.le_trans hab hbc
 
 -- A settled line is never demoted back to aura.
