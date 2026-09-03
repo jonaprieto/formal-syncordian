@@ -12,7 +12,10 @@ lake build
 
 | Module | Contents |
 | --- | --- |
-| `Syncordian/Position.lean` | Dense ordered positions, `PositionSpec` |
+| `Syncordian/Position.lean` | `PositionSpec`: the dense total order, no representation |
+| `Syncordian/PathId.lean` | A candidate model: sentinels plus lexicographic segments |
 | `Syncordian/Status.lean` | Line lifecycle chain, forward-only transitions |
 | `Syncordian/Line.lean` | Line identity, write-once data, mutable state |
-| `Syncordian/Document.lean` | Document as a list of lines |
+| `Syncordian/Document.lean` | Document as a list of lines, well-formedness |
+| `Syncordian/Operation.lean` | Stub |
+| `Syncordian/Peer.lean` | Stub |
