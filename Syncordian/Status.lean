@@ -28,11 +28,10 @@ instance : DecidableLE Status :=
 instance : Max Status where
   max a b := if a ≤ b then b else a
 
-#guard max (.aura : Status) .tombstone = .tombstone
-
 instance : Min Status where
   min a b := if a ≤ b then a else b
 
+#guard max (.aura : Status) .tombstone = .tombstone
 #guard min (.aura : Status) .settled = .aura
 
 theorem Status.compare_eq_rank (a b : Status) :

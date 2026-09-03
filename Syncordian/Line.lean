@@ -14,6 +14,32 @@ inductive LineId (Peer : Type) where
   | top
 deriving DecidableEq, Repr
 
+def LineId.lt [LT Peer] : LineId Peer → LineId Peer → Prop
+  --
+  | .bottom, .bottom => False
+  | .bottom, .top => True
+  | .bottom, .operation _ => True
+  ---
+  | .top, .bottom => False
+  | .top, .top => False
+  | .top, .operation _ => True
+  --
+  | .operation _, .bottom => False
+  | .operation _, .top => False
+  | .operation a, .operation b =>
+      a.writer < b.writer ∨
+      ( a.writer = b.writer ∧
+       a.sequence < b.sequence
+      )
+
+instance instLTLineId [LT Peer] : LT (LineId Peer) where
+  lt := LineId.lt
+
+instance instDecidableLtLineId [LT Peer] [DecidableEq Peer] [DecidableLT Peer]
+    (a b : LineId Peer) : Decidable (a < b) := by
+  cases a <;> cases b <;>
+    (show Decidable (LineId.lt _ _); unfold LineId.lt; infer_instance)
+
 -- the pair of parent lines that defines the interval where a block began.
 -- The session identifies the authored block.
 structure Session (Peer : Type) where
@@ -30,10 +56,10 @@ structure LineFixed
     : Type)
   where
   id : LineId Peer -- identity of the line
-  position : Position
+  position : Position -- where the line sits
   parentLeft : LineId Peer
   parentRight : LineId Peer
-  session : Session Peer -- Is a better name for "Session"?
+  session : Session Peer -- Is there a better name for "Session"?
   content : Content
   writer : Peer
 
@@ -47,8 +73,7 @@ structure LineFixed
 structure LineState (Peer : Type)
   where
   status : Status
-  -- ponytail: List-backed response set; use a finite set when acknowledgements are modeled.
-  responses : List Peer
+  responses : List Peer -- which peers have acknowledged the line
 
 structure Line
   ( Position
@@ -83,6 +108,36 @@ abbrev Line.isBottom (line : Line Position Content Peer)
 abbrev Line.isTop (line : Line Position Content Peer)
   [spec : PositionSpec Position] : Prop :=
   line.isTopSentinel ∧ line.position = spec.top
+
+def Line.lt [PositionSpec Position] [LT Peer]
+    (a b : Line Position Content Peer) : Prop :=
+  a.position < b.position ∨ (a.position = b.position ∧ a.id < b.id)
+
+instance instLTLine [PositionSpec Position] [LT Peer] :
+    LT (Line Position Content Peer) where
+  lt := Line.lt
+
+def Line.Sorted [PositionSpec Position] [LT Peer] :
+    List (Line Position Content Peer) → Prop
+  | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
+  | _ => True
+
+instance instDecidableLtLine [PositionSpec Position] [LT Peer] [DecidableEq Peer]
+    [DecidableLT Peer] [DecidableEq Position]
+    [∀ a b : Position, Decidable (a < b)]
+    (a b : Line Position Content Peer) : Decidable (a < b) := by
+  show Decidable (Line.lt a b)
+  unfold Line.lt; infer_instance
+
+instance instDecidableLineSorted [PositionSpec Position] [LT Peer] [DecidableEq Peer]
+    [DecidableLT Peer] [DecidableEq Position]
+    [∀ a b : Position, Decidable (a < b)] :
+    (l : List (Line Position Content Peer)) → Decidable (Line.Sorted l)
+  | [] => isTrue trivial
+  | [_] => isTrue trivial
+  | a :: b :: rest =>
+    have : Decidable (Line.Sorted (b :: rest)) := instDecidableLineSorted (b :: rest)
+    by unfold Line.Sorted; infer_instance
 
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus

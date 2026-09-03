@@ -1,5 +1,8 @@
 name = "syncordian"
-defaultTargets = ["Syncordian"]
+defaultTargets = ["Syncordian", "Examples"]
 
 [[lean_lib]]
 name = "Syncordian"
+
+[[lean_lib]]
+name = "Examples"

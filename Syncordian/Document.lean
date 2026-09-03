@@ -10,7 +10,8 @@ structure Document where
 variable {Position Content Peer}
 
 -- No two lines in a document share an identity.
-def has_unique_ids (doc : Document Position Content Peer) : Prop :=
+def Document.HasUniqueIds
+    (doc : Document Position Content Peer) : Prop :=
   ∀ ⦃a b⦄,
     a ∈ doc.lines →
     b ∈ doc.lines →
@@ -19,13 +20,15 @@ def has_unique_ids (doc : Document Position Content Peer) : Prop :=
 
 variable [spec : PositionSpec Position]
 
-def has_present_parents (doc : Document Position Content Peer) : Prop :=
+def Document.HasPresentParents
+    (doc : Document Position Content Peer) : Prop :=
   ∀ line, line ∈ doc.lines →
     line.isBoundary ∨
       ((∃ parent ∈ doc.lines, parent.id = line.fixed.parentLeft) ∧
         ∃ parent ∈ doc.lines, parent.id = line.fixed.parentRight)
 
-def has_parent_intervals (doc : Document Position Content Peer) : Prop :=
+def Document.HasParentIntervals
+    (doc : Document Position Content Peer) : Prop :=
   ∀ line, line ∈ doc.lines →
     line.isBoundary ∨
       ∀ left right,
@@ -36,24 +39,50 @@ def has_parent_intervals (doc : Document Position Content Peer) : Prop :=
         left.position < line.position ∧
           line.position < right.position
 
-def has_bottom (doc : Document Position Content Peer) : Prop :=
+def Document.HasSortedLines
+    [LT Peer]
+    (doc : Document Position Content Peer) : Prop :=
+  Line.Sorted doc.lines
+
+def Document.HasBottom
+    (doc : Document Position Content Peer) : Prop :=
   ∃ line ∈ doc.lines, line.isBottom
 
-def has_top (doc : Document Position Content Peer) : Prop :=
+def Document.HasTop (doc : Document Position Content Peer) : Prop :=
   ∃ line ∈ doc.lines, line.isTop
 
-structure IsWellFormed (doc : Document Position Content Peer) : Prop where
-  unique_ids : has_unique_ids doc
-  present_parents : has_present_parents doc
-  parent_intervals : has_parent_intervals doc
-  bottom : has_bottom doc
-  top : has_top doc
+instance instDecidableHasSortedLines [LT Peer] [DecidableEq Peer] [DecidableLT Peer]
+    [DecidableEq Position]
+    [∀ a b : Position, Decidable (a < b)]
+    (doc : Document Position Content Peer) : Decidable (Document.HasSortedLines doc) := by
+  unfold Document.HasSortedLines; infer_instance
+
+instance instDecidableHasPresentParents [DecidableEq Peer]
+    (doc : Document Position Content Peer) : Decidable (Document.HasPresentParents doc) := by
+  unfold Document.HasPresentParents; infer_instance
+
+instance instDecidableHasBottom [DecidableEq Peer] [DecidableEq Position]
+    (doc : Document Position Content Peer) : Decidable (Document.HasBottom doc) := by
+  unfold Document.HasBottom; infer_instance
+
+instance instDecidableHasTop [DecidableEq Peer] [DecidableEq Position]
+    (doc : Document Position Content Peer) : Decidable (Document.HasTop doc) := by
+  unfold Document.HasTop; infer_instance
+
+structure Document.WellFormed [LT Peer] (doc : Document Position Content Peer) : Prop where
+  uniqueIds : Document.HasUniqueIds doc
+  presentParents : Document.HasPresentParents doc
+  parentIntervals : Document.HasParentIntervals doc
+  sortedLines : Document.HasSortedLines doc
+  bottom : Document.HasBottom doc
+  top : Document.HasTop doc
 
 -- subtype, a document + what it means to be well-defined/formed.
-abbrev WellFormedDocument (Position Content Peer : Type) [PositionSpec Position] :=
-  { doc : Document Position Content Peer // IsWellFormed doc }
+abbrev WellFormedDocument (Position Content Peer : Type)
+    [PositionSpec Position] [LT Peer] :=
+  { doc : Document Position Content Peer // Document.WellFormed doc }
 
-theorem WellFormedDocument.bottom_unique
+theorem WellFormedDocument.bottom_unique [LT Peer]
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines)
@@ -61,9 +90,9 @@ theorem WellFormedDocument.bottom_unique
     (ha_id : a.id = LineId.bottom)
     (hb_id : b.id = LineId.bottom) :
     a = b :=
-  doc.property.unique_ids ha hb (ha_id.trans hb_id.symm)
+  doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
 
-theorem WellFormedDocument.top_unique
+theorem WellFormedDocument.top_unique [LT Peer]
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines)
@@ -71,6 +100,6 @@ theorem WellFormedDocument.top_unique
     (ha_id : a.id = LineId.top)
     (hb_id : b.id = LineId.top) :
     a = b :=
-  doc.property.unique_ids ha hb (ha_id.trans hb_id.symm)
+  doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
 
 end Syncordian
