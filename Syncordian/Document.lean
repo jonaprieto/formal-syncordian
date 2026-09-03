@@ -42,6 +42,12 @@ def Document.HasParentIntervals
         left.position < line.position ∧
           line.position < right.position
 
+def Document.HasSortedLines
+    [LT Peer]
+    (doc : Document Position Content Peer)
+    : Prop :=
+  Line.Sorted doc.lines
+
 def Document.HasBottom
     (doc : Document Position Content Peer)
     : Prop :=
@@ -53,21 +59,25 @@ def Document.HasTop
   ∃ line ∈ doc.lines, line.isTop
 
 structure Document.WellFormed
+    [LT Peer]
     (doc : Document Position Content Peer)
     : Prop where
   uniqueIds : Document.HasUniqueIds doc
   presentParents : Document.HasPresentParents doc
   parentIntervals : Document.HasParentIntervals doc
+  sortedLines : Document.HasSortedLines doc
   bottom : Document.HasBottom doc
   top : Document.HasTop doc
 
 -- subtype, a document + what it means to be well-defined/formed.
 abbrev WellFormedDocument
     (Position Content Peer : Type)
-    [PositionSpec Position] :=
+    [PositionSpec Position]
+    [LT Peer] :=
   { doc : Document Position Content Peer // Document.WellFormed doc }
 
 theorem WellFormedDocument.bottom_unique
+    [LT Peer]
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines)
@@ -78,6 +88,7 @@ theorem WellFormedDocument.bottom_unique
   doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
 
 theorem WellFormedDocument.top_unique
+    [LT Peer]
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines)
