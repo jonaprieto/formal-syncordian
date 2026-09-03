@@ -50,7 +50,9 @@ structure IsWellFormed (doc : Document Position Content Peer) : Prop where
   top : has_top doc
 
 -- subtype, a document + what it means to be well-defined/formed.
-abbrev WellFormedDocument (Position Content Peer : Type) [PositionSpec Position] :=
+abbrev WellFormedDocument
+    (Position Content Peer : Type)
+    [PositionSpec Position] :=
   { doc : Document Position Content Peer // IsWellFormed doc }
 
 theorem WellFormedDocument.bottom_unique
@@ -59,8 +61,8 @@ theorem WellFormedDocument.bottom_unique
     (ha : a ∈ doc.val.lines)
     (hb : b ∈ doc.val.lines)
     (ha_id : a.id = LineId.bottom)
-    (hb_id : b.id = LineId.bottom) :
-    a = b :=
+    (hb_id : b.id = LineId.bottom)
+    : a = b :=
   doc.property.unique_ids ha hb (ha_id.trans hb_id.symm)
 
 theorem WellFormedDocument.top_unique
@@ -69,8 +71,8 @@ theorem WellFormedDocument.top_unique
     (ha : a ∈ doc.val.lines)
     (hb : b ∈ doc.val.lines)
     (ha_id : a.id = LineId.top)
-    (hb_id : b.id = LineId.top) :
-    a = b :=
+    (hb_id : b.id = LineId.top)
+    : a = b :=
   doc.property.unique_ids ha hb (ha_id.trans hb_id.symm)
 
 end Syncordian
