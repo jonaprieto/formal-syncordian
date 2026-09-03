@@ -9,41 +9,20 @@ def Segment.lt (a b : Segment) : Prop :=
 instance (a b : Segment) : Decidable (Segment.lt a b) := by
   unfold Segment.lt; infer_instance
 
-theorem Segment.compare_def
-    (a b : Segment)
-    : compare a b = (match compare a.digit b.digit with
-                     | .eq => compare a.peer b.peer
-                     | result => result) :=
-  rfl
-
 theorem Segment.compare_eq_eq
     {a b : Segment}
     : compare a b = .eq ↔ a = b := by
-  rw [Segment.compare_def]
-  constructor
-  · intro h
-    rcases Nat.lt_trichotomy a.digit b.digit with hd | hd | hd
-    · rw [Nat.compare_eq_lt.mpr hd] at h; cases h
-    · rw [Nat.compare_eq_eq.mpr hd] at h
-      have hp := Nat.compare_eq_eq.mp h
-      cases a; cases b; simp_all
-    · rw [Nat.compare_eq_gt.mpr hd] at h; cases h
-  · intro h
-    subst h
-    rw [Nat.compare_eq_eq.mpr rfl]
-    exact Nat.compare_eq_eq.mpr rfl
+  obtain ⟨d1, p1⟩ := a
+  obtain ⟨d2, p2⟩ := b
+  simp [compare, compareOfLessAndEq]
+  grind
 
 -- The only place the order and the executable comparator meet.
 theorem Segment.compare_eq_lt
     {a b : Segment}
     : compare a b = .lt ↔ Segment.lt a b := by
-  unfold Segment.lt
-  rw [Segment.compare_def]
-  rcases Nat.lt_trichotomy a.digit b.digit with h | h | h
-  · rw [Nat.compare_eq_lt.mpr h]; simp [h]
-  · rw [Nat.compare_eq_eq.mpr h]; simp [h, Nat.compare_eq_lt, Nat.lt_irrefl]
-  · rw [Nat.compare_eq_gt.mpr h]
-    simp [Nat.not_lt.mpr (Nat.le_of_lt h), Nat.ne_of_gt h]
+  simp [Segment.lt, compare, compareOfLessAndEq]
+  grind
 
 theorem Segment.lt_irrefl (a : Segment) : ¬ Segment.lt a a := by
   grind [Segment.lt]
@@ -58,7 +37,10 @@ theorem Segment.lt_trans
 theorem Segment.lt_total
     (a b : Segment)
     : Segment.lt a b ∨ a = b ∨ Segment.lt b a := by
-  simp only [Segment.lt]; cases a; cases b; simp_all; omega
+  obtain ⟨d1, p1⟩ := a
+  obtain ⟨d2, p2⟩ := b
+  simp [Segment.lt]
+  grind
 
 inductive Lex : List Segment → List Segment → Prop
   | nil (b : Segment) (bs : List Segment) : Lex [] (b :: bs)
