@@ -12,13 +12,13 @@ structure LineFixed
       Peer
       : Type)
     where
-  id : LineId Peer -- identity of the line
-  position : Position
-  parentLeft : LineId Peer
+  id          : LineId Peer -- identity of the line
+  position    : Position
+  parentLeft  : LineId Peer
   parentRight : LineId Peer
-  session : Session Peer -- Is a better name for "Session"?
-  content : Content
-  writer : Peer
+  session     : Session Peer -- Is a better name for "Session"?
+  content     : Content
+  writer      : Peer
 
 -- Things unsolved to figure with M and N
 -- insertion_attempts: integer(),

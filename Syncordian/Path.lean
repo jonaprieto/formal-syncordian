@@ -8,13 +8,13 @@ structure Path where
 deriving DecidableEq, Repr
 
 def Path.toList
-  (p : Path)
-  : List Segment :=
+    (p : Path)
+    : List Segment :=
   p.head :: p.tail
 
 def Path.compareList
-  : List Segment →
-   List Segment → Ordering
+    : List Segment →
+      List Segment → Ordering
   | [], [] => .eq
   | [], _ :: _ => .lt
   | _ :: _, [] => .gt

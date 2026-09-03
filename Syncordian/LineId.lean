@@ -2,7 +2,7 @@
 namespace Syncordian
 
 structure OpId (Peer : Type) where
-  writer : Peer
+  writer   : Peer
   sequence : Nat
 deriving DecidableEq, Repr
 

@@ -62,25 +62,29 @@ structure Document.WellFormed
     [LT Peer]
     (doc : Document Position Content Peer)
     : Prop where
-  uniqueIds : Document.HasUniqueIds doc
-  presentParents : Document.HasPresentParents doc
+  bottom          : Document.HasBottom doc
+  top             : Document.HasTop doc
+  uniqueIds       : Document.HasUniqueIds doc
+  presentParents  : Document.HasPresentParents doc
   parentIntervals : Document.HasParentIntervals doc
-  sortedLines : Document.HasSortedLines doc
-  bottom : Document.HasBottom doc
-  top : Document.HasTop doc
+  sortedLines     : Document.HasSortedLines doc
 
 -- subtype, a document + what it means to be well-defined/formed.
 abbrev WellFormedDocument
-    (Position Content Peer : Type)
+    ( Position
+      Content
+      Peer
+      : Type)
     [PositionSpec Position]
-    [LT Peer] :=
+    [LT Peer]
+    :=
   { doc : Document Position Content Peer // Document.WellFormed doc }
 
 theorem WellFormedDocument.bottom_unique
     [LT Peer]
-    (doc : WellFormedDocument Position Content Peer)
-    {a b : Line Position Content Peer}
-    (ha : a ∈ doc.val.lines)
+    (doc  : WellFormedDocument Position Content Peer)
+    {a b  : Line Position Content Peer}
+    (ha   : a ∈ doc.val.lines)
     (hb : b ∈ doc.val.lines)
     (ha_id : a.id = LineId.bottom)
     (hb_id : b.id = LineId.bottom)

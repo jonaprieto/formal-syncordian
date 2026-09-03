@@ -2,7 +2,7 @@ namespace Syncordian
 
 structure Segment where
   digit : Nat
-  peer : Nat
+  peer  : Nat
 deriving DecidableEq, Repr
 
 instance : Ord Segment where
