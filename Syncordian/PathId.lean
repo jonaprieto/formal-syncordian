@@ -1,35 +1,7 @@
--- Ref: Syncordian.PathId
+import Syncordian.Segment
+import Syncordian.Path
+
 namespace Syncordian
-
-structure Segment where
-  digit : Nat
-  peer : Nat
-deriving DecidableEq, Repr
-
-instance : Ord Segment where
-  compare a b :=
-    match compare a.digit b.digit with
-    | .eq => compare a.peer b.peer
-    | result => result
-
-structure Path where
-  head : Segment
-  tail : List Segment
-deriving DecidableEq, Repr
-
-def Path.toList (p : Path) : List Segment := p.head :: p.tail
-
-def Path.compareList : List Segment → List Segment → Ordering
-  | [], [] => .eq
-  | [], _ :: _ => .lt
-  | _ :: _, [] => .gt
-  | a :: as, b :: bs =>
-      match compare a b with
-      | .eq => Path.compareList as bs
-      | result => result
-
-instance : Ord Path where
-  compare a b := Path.compareList a.toList b.toList
 
 inductive PathId where
   | infimum
