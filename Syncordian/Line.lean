@@ -14,6 +14,25 @@ inductive LineId (Peer : Type) where
   | top
 deriving DecidableEq, Repr
 
+def LineId.lt
+    [LT Peer]
+    : LineId Peer → LineId Peer → Prop
+  | .bottom, .bottom => False
+  | .bottom, .top => True
+  | .bottom, .operation _ => True
+  | .top, .bottom => False
+  | .top, .top => False
+  | .top, .operation _ => True
+  | .operation _, .bottom => False
+  | .operation _, .top => False
+  | .operation a, .operation b =>
+      a.writer < b.writer ∨ (a.writer = b.writer ∧ a.sequence < b.sequence)
+
+instance instLTLineId
+    [LT Peer]
+    : LT (LineId Peer) where
+  lt := LineId.lt
+
 -- the pair of parent lines that defines the interval where a block began.
 -- The session identifies the authored block.
 structure Session (Peer : Type) where
@@ -94,6 +113,26 @@ abbrev Line.isTop
     [spec : PositionSpec Position]
     : Prop :=
   line.isTopSentinel ∧ line.position = spec.top
+
+def Line.lt
+    [PositionSpec Position]
+    [LT Peer]
+    (a b : Line Position Content Peer)
+    : Prop :=
+  a.position < b.position ∨ (a.position = b.position ∧ a.id < b.id)
+
+instance instLTLine
+    [PositionSpec Position]
+    [LT Peer]
+    : LT (Line Position Content Peer) where
+  lt := Line.lt
+
+def Line.Sorted
+    [PositionSpec Position]
+    [LT Peer]
+    : List (Line Position Content Peer) → Prop
+  | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
+  | _ => True
 
 -- A transition can only update the state; `fixed` is carried forward unchanged.
 def Line.setStatus
