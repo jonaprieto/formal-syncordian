@@ -25,13 +25,11 @@ instance : LE Status where
 instance : DecidableLE Status :=
   fun a b => Nat.decLe a.rank b.rank
 
-instance : Max Status where
-  max a b := if a ≤ b then b else a
+instance : Max Status := maxOfLe
 
 #guard max (.aura : Status) .tombstone = .tombstone
 
-instance : Min Status where
-  min a b := if a ≤ b then a else b
+instance : Min Status := minOfLe
 
 #guard min (.aura : Status) .settled = .aura
 
