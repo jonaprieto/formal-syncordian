@@ -27,9 +27,9 @@ def LineId.lt
   | .bottom, .operation _ => True
   | .top, .bottom => False
   | .top, .top => False
-  | .top, .operation _ => True
+  | .top, .operation _ => False
   | .operation _, .bottom => False
-  | .operation _, .top => False
+  | .operation _, .top => True
   | .operation a, .operation b =>
       a.writer < b.writer ∨ (a.writer = b.writer ∧ a.sequence < b.sequence)
 
