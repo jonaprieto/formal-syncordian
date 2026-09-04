@@ -5,12 +5,14 @@ import Syncordian.Session
 
 namespace Syncordian
 
+variable (
+    Position
+    Content
+    Peer
+      : Type)
+
 -- Write-once protocol data.
 structure LineFixed
-    ( Position
-      Content
-      Peer
-      : Type)
     where
   id          : LineId Peer -- identity of the line
   position    : Position
@@ -28,16 +30,11 @@ structure LineFixed
 
 -- The evolving data of a line.
 structure LineState
-    (Peer : Type)
     where
   status : Status
   responses : List Peer
 
 structure Line
-    ( Position
-      Content
-      Peer
-      : Type)
     where
   fixed : LineFixed Position Content Peer
   state : LineState Peer

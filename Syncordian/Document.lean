@@ -2,9 +2,14 @@ import Syncordian.Line
 
 namespace Syncordian
 
-variable (Position Content Peer : Type)
+variable (
+  Position
+  Content
+  Peer : Type
+  )
 
-structure Document where
+structure Document
+    where
   lines : List (Line Position Content Peer)
 
 variable {Position Content Peer}
