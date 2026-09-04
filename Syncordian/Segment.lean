@@ -12,8 +12,8 @@ instance : Ord Segment where
 
 abbrev lt_seg
     (a b : Segment)
-    : Prop
-    := a.digit < b.digit ∨ (a.digit = b.digit ∧ a.peer < b.peer)
+    : Prop :=
+  a.digit < b.digit ∨ (a.digit = b.digit ∧ a.peer < b.peer)
 
 -- Segments order by digit, then by peer.
 instance : LT Segment where

@@ -3,8 +3,7 @@ namespace Syncordian
 
 variable (
     Peer
-    : Type
-)
+    : Type)
 variable [LT Peer]
 
 structure OpId

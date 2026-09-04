@@ -3,10 +3,10 @@ import Syncordian.Line
 namespace Syncordian
 
 variable (
-  Position
-  Content
-  Peer : Type
-  )
+    Position
+    Content
+    Peer
+    : Type)
 
 structure Document
     where
@@ -87,9 +87,9 @@ abbrev WellFormedDocument
 
 theorem WellFormedDocument.bottom_unique
     [LT Peer]
-    (doc  : WellFormedDocument Position Content Peer)
-    {a b  : Line Position Content Peer}
-    (ha   : a ∈ doc.val.lines)
+    (doc : WellFormedDocument Position Content Peer)
+    {a b : Line Position Content Peer}
+    (ha : a ∈ doc.val.lines)
     (hb : b ∈ doc.val.lines)
     (ha_id : a.id = LineId.bottom)
     (hb_id : b.id = LineId.bottom)

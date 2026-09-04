@@ -9,7 +9,7 @@ variable (
     Position
     Content
     Peer
-      : Type)
+    : Type)
 
 -- Write-once protocol data.
 structure LineFixed
@@ -31,7 +31,7 @@ structure LineFixed
 -- The evolving data of a line.
 structure LineState
     where
-  status : Status
+  status    : Status
   responses : List Peer
 
 structure Line
