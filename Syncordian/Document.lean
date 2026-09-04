@@ -8,6 +8,9 @@ variable (
     Peer
     : Type)
 
+variable
+  [LT Peer]
+
 structure Document
     where
   lines : List (Line Position Content Peer)
@@ -48,7 +51,6 @@ def Document.HasParentIntervals
           line.position < right.position
 
 def Document.HasSortedLines
-    [LT Peer]
     (doc : Document Position Content Peer)
     : Prop :=
   Line.Sorted doc.lines
@@ -64,7 +66,6 @@ def Document.HasTop
   ∃ line ∈ doc.lines, line.isTop
 
 structure Document.WellFormed
-    [LT Peer]
     (doc : Document Position Content Peer)
     : Prop where
   bottom          : Document.HasBottom doc
@@ -86,7 +87,6 @@ abbrev WellFormedDocument
   { doc : Document Position Content Peer // Document.WellFormed doc }
 
 theorem WellFormedDocument.bottom_unique
-    [LT Peer]
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines)
@@ -97,7 +97,6 @@ theorem WellFormedDocument.bottom_unique
   doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
 
 theorem WellFormedDocument.top_unique
-    [LT Peer]
     (doc : WellFormedDocument Position Content Peer)
     {a b : Line Position Content Peer}
     (ha : a ∈ doc.val.lines)
@@ -106,5 +105,17 @@ theorem WellFormedDocument.top_unique
     (hb_id : b.id = LineId.top)
     : a = b :=
   doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
+
+variable [DecidableEq Peer]
+
+def WellFormedDocument.visibleLines
+    (doc : WellFormedDocument Position Content Peer)
+    : List (Line Position Content Peer) :=
+  doc.val.lines.filter fun line => decide line.isVisible
+
+def WellFormedDocument.read
+    (doc : WellFormedDocument Position Content Peer)
+    : List Content :=
+  doc.visibleLines.map (·.fixed.content)
 
 end Syncordian
