@@ -62,34 +62,40 @@ abbrev Line.isBoundary
     : Prop :=
   line.isBottomSentinel ∨ line.isTopSentinel
 
+
+variable
+    [spec : PositionSpec Position]
+    [LT Peer]
+
 abbrev Line.isBottom
     (line : Line Position Content Peer)
-    [spec : PositionSpec Position]
     : Prop :=
   line.isBottomSentinel ∧ line.position = spec.bottom
 
 abbrev Line.isTop
     (line : Line Position Content Peer)
-    [spec : PositionSpec Position]
     : Prop :=
   line.isTopSentinel ∧ line.position = spec.top
 
 def Line.lt
-    [PositionSpec Position]
-    [LT Peer]
     (a b : Line Position Content Peer)
     : Prop :=
   a.position < b.position ∨ (a.position = b.position ∧ a.id < b.id)
 
 instance instLTLine
-    [PositionSpec Position]
-    [LT Peer]
     : LT (Line Position Content Peer) where
   lt := Line.lt
 
+instance instDecidableLTLine
+    [DecidableEq Peer]
+    [DecidableLT Peer]
+    [DecidableEq Position]
+    [DecidableLT Position]
+    (a b : Line Position Content Peer)
+    : Decidable (a < b) :=
+  inferInstanceAs (Decidable (_ ∨ _))
+
 def Line.Sorted
-    [PositionSpec Position]
-    [LT Peer]
     : List (Line Position Content Peer) → Prop
   | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
   | _ => True
@@ -105,5 +111,11 @@ def Line.setStatus
     line.state with status := next
     }
   }
+
+-- A line the reader sees: neither sentinel, and not deleted.
+abbrev Line.isVisible
+    (line : Line Position Content Peer)
+    : Prop :=
+  ¬ line.isBoundary ∧ line.status ≠ .tombstone
 
 end Syncordian
