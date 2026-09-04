@@ -20,7 +20,8 @@ theorem Lex.irrefl : ∀ (as : List Segment), ¬ Lex as as := by
     | head h _ _ => exact Segment.lt_irrefl a h
     | tail _ h => exact ih h
 
-theorem Lex.trans : ∀ {as bs cs : List Segment}, Lex as bs → Lex bs cs → Lex as cs := by
+theorem Lex.trans
+    : ∀ {as bs cs : List Segment}, Lex as bs → Lex bs cs → Lex as cs := by
   intro as
   induction as with
   | nil =>
@@ -41,7 +42,8 @@ theorem Lex.trans : ∀ {as bs cs : List Segment}, Lex as bs → Lex bs cs → L
       | head hlt' _ _ => exact Lex.head hlt' _ _
       | tail _ h' => exact Lex.tail _ (ih h h')
 
-theorem Lex.total : ∀ (as bs : List Segment), Lex as bs ∨ as = bs ∨ Lex bs as := by
+theorem Lex.total
+    : ∀ (as bs : List Segment), Lex as bs ∨ as = bs ∨ Lex bs as := by
   intro as
   induction as with
   | nil =>
@@ -123,7 +125,8 @@ theorem Lex.prefix_below
           show Lex (a :: as) (a :: belowL (t :: ts))
           exact Lex.tail a (ih hp' h)
 
-instance instDecidableIsPrefix : (as bs : List Segment) → Decidable (IsPrefix as bs)
+instance instDecidableIsPrefix
+    : (as bs : List Segment) → Decidable (IsPrefix as bs)
   | [], _ => isTrue trivial
   | _ :: _, [] => isFalse not_false
   | _ :: as, _ :: bs => @instDecidableAnd _ _ inferInstance (instDecidableIsPrefix as bs)
@@ -265,10 +268,13 @@ theorem PathId.lt_total
 
 -- The allocator behind `dense`: a position strictly between `a` and `b`.
 def PathId.between : PathId → PathId → PathId
-  | .infimum, .path q => .path q.below
+  | .infimum, .path q   => .path q.below
   | .infimum, .supremum => .path { head := Segment.least, tail := [] }
-  | .path p, .supremum => .path p.ext
-  | .path p, .path q => if IsPrefix p.toList q.toList then .path q.below else .path p.ext
+  | .path p, .supremum  => .path p.ext
+  | .path p, .path q    =>
+      if IsPrefix p.toList q.toList
+        then .path q.below
+        else .path p.ext
   | _, _ => .infimum
 
 theorem PathId.between_wellFormed
