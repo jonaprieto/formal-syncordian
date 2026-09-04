@@ -31,7 +31,6 @@ structure LineState
     (Peer : Type)
     where
   status : Status
-  -- ponytail: List-backed response set; use a finite set when acknowledgements are modeled.
   responses : List Peer
 
 structure Line
@@ -109,22 +108,5 @@ def Line.setStatus
     line.state with status := next
     }
   }
-
--- only changes the state no the fixed data
-theorem Line.setStatus_fixed
-    (line : Line Position Content Peer)
-    (next : Status)
-    (h : line.status.canBecome next)
-    : (line.setStatus next h).fixed = line.fixed := by
-  rfl
-
--- same for responses, nothing changes.
-theorem Line.setStatus_responses
-    (line : Line Position Content Peer)
-    (next : Status)
-    (h : line.status.canBecome next)
-    : (line.setStatus next h).state.responses = line.state.responses := by
-  rfl
-
 
 end Syncordian
