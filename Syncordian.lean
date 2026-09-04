@@ -1,8 +1,12 @@
-import Syncordian.Position
-import Syncordian.PathId
-import Syncordian.Status
-import Syncordian.Line
 import Syncordian.Document
+import Syncordian.Line
+import Syncordian.LineId
 import Syncordian.Operation
-import Syncordian.Peer
+import Syncordian.Path
+import Syncordian.PathId
 import Syncordian.PathIdOrder
+import Syncordian.Peer
+import Syncordian.Position
+import Syncordian.Segment
+import Syncordian.Session
+import Syncordian.Status

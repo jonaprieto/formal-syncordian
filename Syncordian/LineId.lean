@@ -1,34 +1,39 @@
 
 namespace Syncordian
 
-structure OpId (Peer : Type) where
+variable (
+    Peer
+    : Type)
+variable [LT Peer]
+
+structure OpId
+    where
   writer   : Peer
   sequence : Nat
 deriving DecidableEq, Repr
 
-inductive LineId (Peer : Type) where
+inductive LineId
+    where
   | operation (id : OpId Peer)
   | bottom
   | top
 deriving DecidableEq, Repr
 
 def LineId.lt
-    [LT Peer]
     : LineId Peer → LineId Peer → Prop
   | .bottom, .bottom => False
   | .bottom, .top => True
   | .bottom, .operation _ => True
   | .top, .bottom => False
   | .top, .top => False
-  | .top, .operation _ => True
+  | .top, .operation _ => False
   | .operation _, .bottom => False
-  | .operation _, .top => False
+  | .operation _, .top => True
   | .operation a, .operation b =>
       a.writer < b.writer ∨ (a.writer = b.writer ∧ a.sequence < b.sequence)
 
 instance instLTLineId
-    [LT Peer]
     : LT (LineId Peer) where
-  lt := LineId.lt
+  lt := LineId.lt Peer
 
 end Syncordian
