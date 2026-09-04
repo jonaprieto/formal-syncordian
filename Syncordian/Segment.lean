@@ -7,17 +7,21 @@ deriving DecidableEq, Repr
 
 instance : Ord Segment where
   compare a b :=
-    match compare a.digit b.digit with
-    | .eq => compare a.peer b.peer
-    | result => result
+    (compare a.digit b.digit).then
+      (compare a.peer b.peer)
+
+abbrev lt_seg
+    (a b : Segment)
+    : Prop
+    := a.digit < b.digit ∨ (a.digit = b.digit ∧ a.peer < b.peer)
 
 -- Segments order by digit, then by peer.
 instance : LT Segment where
-  lt a b := a.digit < b.digit ∨ (a.digit = b.digit ∧ a.peer < b.peer)
+  lt a b := lt_seg a b
 
 theorem Segment.lt_def
     {a b : Segment}
-    : a < b ↔ a.digit < b.digit ∨ (a.digit = b.digit ∧ a.peer < b.peer) :=
+    : a < b ↔ lt_seg a b :=
   Iff.rfl
 
 instance (a b : Segment) : Decidable (a < b) :=
@@ -37,7 +41,7 @@ theorem Segment.compare_eq_eq
 theorem Segment.compare_eq_lt
     {a b : Segment}
     : compare a b = .lt ↔ a < b := by
-  simp [Segment.lt_def, compare, compareOfLessAndEq]
+  simp [Segment.lt_def, compare, compareOfLessAndEq, Ordering.then]
   grind
 
 theorem Segment.lt_irrefl (a : Segment) : ¬ a < a := by
