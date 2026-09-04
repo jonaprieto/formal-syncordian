@@ -295,58 +295,37 @@ theorem PathId.between_wellFormed
            simp only [PathId.between, if_neg hpre]
            exact Path.ext_wellFormed p)
 
-theorem PathId.lt_between
-    {a b : PathId}
-    (h : PathId.lt a b)
-    : PathId.lt a (PathId.between a b) := by
-  cases a with
-  | supremum => exact absurd h (PathId.not_supremum_lt _)
-  | infimum =>
-    cases b with
-    | infimum => exact absurd h (PathId.not_lt_infimum _)
-    | path q => rfl
-    | supremum => rfl
-  | path p =>
-    cases b with
-    | infimum => exact absurd h (PathId.not_lt_infimum _)
-    | supremum => exact PathId.lt_path.mpr (Path.lt_ext p)
-    | path q =>
-      by_cases hpre : IsPrefix p.toList q.toList
-      · show PathId.lt (.path p) (PathId.between (.path p) (.path q))
-        simp only [PathId.between, if_pos hpre]
-        refine PathId.lt_path.mpr ?_
-        rw [Path.below_toList]
-        exact Lex.prefix_below hpre (PathId.lt_path.mp h)
-      · show PathId.lt (.path p) (PathId.between (.path p) (.path q))
-        simp only [PathId.between, if_neg hpre]
-        exact PathId.lt_path.mpr (Path.lt_ext p)
-
-theorem PathId.between_lt
+theorem PathId.between_spec
     {a b : PathId}
     (h : PathId.lt a b)
     (hb : b.WellFormed)
-    : PathId.lt (PathId.between a b) b := by
+    : PathId.lt a (PathId.between a b) ∧ PathId.lt (PathId.between a b) b := by
   cases a with
   | supremum => exact absurd h (PathId.not_supremum_lt _)
   | infimum =>
     cases b with
     | infimum => exact absurd h (PathId.not_lt_infimum _)
-    | path q => exact PathId.lt_path.mpr (Path.below_lt q hb)
-    | supremum => rfl
+    | path q => exact ⟨rfl, PathId.lt_path.mpr (Path.below_lt q hb)⟩
+    | supremum => exact ⟨rfl, rfl⟩
   | path p =>
     cases b with
     | infimum => exact absurd h (PathId.not_lt_infimum _)
-    | supremum => rfl
+    | supremum => exact ⟨PathId.lt_path.mpr (Path.lt_ext p), rfl⟩
     | path q =>
+      have h' := PathId.lt_path.mp h
       by_cases hpre : IsPrefix p.toList q.toList
-      · show PathId.lt (PathId.between (.path p) (.path q)) (.path q)
+      · show PathId.lt _ (PathId.between (.path p) (.path q)) ∧
+          PathId.lt (PathId.between (.path p) (.path q)) _
         simp only [PathId.between, if_pos hpre]
-        exact PathId.lt_path.mpr (Path.below_lt q hb)
-      · show PathId.lt (PathId.between (.path p) (.path q)) (.path q)
+        refine ⟨PathId.lt_path.mpr ?_, PathId.lt_path.mpr (Path.below_lt q hb)⟩
+        rw [Path.below_toList]
+        exact Lex.prefix_below hpre h'
+      · show PathId.lt _ (PathId.between (.path p) (.path q)) ∧
+          PathId.lt (PathId.between (.path p) (.path q)) _
         simp only [PathId.between, if_neg hpre]
-        refine PathId.lt_path.mpr ?_
+        refine ⟨PathId.lt_path.mpr (Path.lt_ext p), PathId.lt_path.mpr ?_⟩
         rw [Path.ext_toList]
-        exact Lex.append_of_not_prefix (PathId.lt_path.mp h) hpre Segment.least
+        exact Lex.append_of_not_prefix h' hpre Segment.least
 
 -- The allocator runs: it lands strictly inside a concrete gap.
 #guard
@@ -370,8 +349,8 @@ instance : PositionSpec { x : PathId // x.WellFormed } where
     exact PathId.lt_supremum fun hv => hx (Subtype.ext hv)
   dense := fun {a b} h =>
     ⟨⟨PathId.between a.val b.val, PathId.between_wellFormed _ _⟩,
-      PathId.lt_between h,
-      PathId.between_lt h b.property⟩
+      (PathId.between_spec h b.property).1,
+      (PathId.between_spec h b.property).2⟩
 
 instance instDecidableLtWellFormed
     (a b : { x : PathId // x.WellFormed })
