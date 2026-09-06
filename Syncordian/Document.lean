@@ -21,7 +21,9 @@ def Document.empty
     : Document Position Content Peer :=
   { normalLines := [] }
 
--- Internal lookup: called only after `line?` has matched away the boundaries.
+instance : Inhabited (Document Position Content Peer) :=
+  { default := Document.empty }
+
 def Document.normalLine?
     [DecidableEq Peer]
     (doc : Document Position Content Peer)
@@ -29,8 +31,6 @@ def Document.normalLine?
     : Option (NormalLine Position Content Peer) :=
   doc.normalLines.find? fun line => decide (line.id = id)
 
--- The paper-facing lookup, over the full line-id domain: a parent may name
--- `bottom`, `top` or an ordinary line.
 def Document.line?
     [DecidableEq Peer]
     (doc : Document Position Content Peer)
@@ -107,6 +107,22 @@ def Document.HasParentIntervals
       left.position < line.position ∧
         line.position < right.position
 
+def Document.ParentBefore
+    (doc : Document Position Content Peer)
+    (parent child : LineId Peer)
+    : Prop :=
+  ∃ line ∈ doc.normalLines,
+    child = .operation line.id ∧
+      (parent = line.fixed.parentLeft ∨ parent = line.fixed.parentRight)
+
+-- Every ancestor chain is finite, which is acyclicity for a finite document.
+-- `HasParentIntervals` is spatial correctness; this is the temporal half, and a
+-- document needs both.
+def Document.ParentRanked
+    (doc : Document Position Content Peer)
+    : Prop :=
+  WellFounded doc.ParentBefore
+
 def Document.HasSortedLines
     [PositionSpec Position]
     [LT Peer]
@@ -123,6 +139,7 @@ structure Document.WellFormed
   uniqueIds       : Document.HasUniqueIds doc
   presentParents  : Document.HasPresentParents doc
   parentIntervals : Document.HasParentIntervals doc
+  parentRanked    : Document.ParentRanked doc
   sortedLines     : Document.HasSortedLines doc
 
 -- subtype, a document + what it means to be well-defined/formed.
