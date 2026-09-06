@@ -22,7 +22,6 @@ structure LineFixedData
   parentRight : LineId Peer
   session     : Session Peer -- Is a better name for "Session"?
   content     : Content
-  writer      : Peer
 
 -- Things unsolved to figure with M and N
 -- insertion_attempts: integer(),

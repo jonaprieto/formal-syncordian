@@ -23,19 +23,26 @@ inductive Operation
       (parentLeft parentRight : LineId Peer)
       (supersedes : Option (LineId Peer))
       (content : Content)
-      (writer : Peer)
-      (tag : Tag)
+      (wireTag : Tag)
 
   | delete
       (id : OpId Peer)
       (target : LineId Peer)
-      (tag : Tag)
+      (wireTag : Tag)
 
   | acknowledge
-      (id : OpId Peer)
       (target : LineId Peer)
       (peer : Peer)
-      (tag : Tag)
+      (wireTag : Tag)
+
 deriving DecidableEq, Repr
+
+variable {Position Content Peer Tag}
+
+def Operation.wireTag
+    : Operation Position Content Peer Tag → Tag
+  | .insert _ _ _ _ _ _ _ tag => tag
+  | .delete _ _ tag             => tag
+  | .acknowledge _ _ tag        => tag
 
 end Syncordian
