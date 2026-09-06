@@ -2,6 +2,7 @@ import Syncordian.Document
 import Syncordian.Line
 import Syncordian.LineId
 import Syncordian.Operation
+import Syncordian.OperationId
 import Syncordian.Path
 import Syncordian.PathId
 import Syncordian.PathIdOrder

@@ -1,3 +1,4 @@
+import Syncordian.OperationId
 
 namespace Syncordian
 
@@ -5,12 +6,6 @@ variable (
     Peer
     : Type)
 variable [LT Peer]
-
-structure OpId
-    where
-  writer   : Peer
-  sequence : Nat
-deriving DecidableEq, Repr
 
 inductive LineId
     where
