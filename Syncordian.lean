@@ -1,4 +1,5 @@
 import Syncordian.Document
+import Syncordian.Message
 import Syncordian.Line
 import Syncordian.LineId
 import Syncordian.Operation
@@ -8,6 +9,7 @@ import Syncordian.PathId
 import Syncordian.PathIdOrder
 import Syncordian.Peer
 import Syncordian.Position
+import Syncordian.ReplicaState
 import Syncordian.Segment
 import Syncordian.Session
 import Syncordian.Status
