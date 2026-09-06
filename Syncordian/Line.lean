@@ -11,10 +11,12 @@ variable (
     Peer
     : Type)
 
+section NormalLine
+
 -- Write-once protocol data.
-structure LineFixed
+structure LineFixedData
     where
-  id          : LineId Peer -- identity of the line
+  id          : OpId Peer -- identity of the line; only an insert can create one
   position    : Position
   parentLeft  : LineId Peer
   parentRight : LineId Peer
@@ -29,93 +31,127 @@ structure LineFixed
 -- signature: Syncordian.Basic_Types.signature(),
 
 -- The evolving data of a line.
-structure LineState
+structure LineStateData
     where
   status    : Status
   responses : List Peer
 
-structure Line
+structure NormalLine
     where
-  fixed : LineFixed Position Content Peer
-  state : LineState Peer
+  fixed : LineFixedData Position Content Peer
+  state : LineStateData Peer
+
+abbrev NormalLine.id
+    (line : NormalLine Position Content Peer)
+    : OpId Peer :=
+  line.fixed.id
+
+abbrev NormalLine.position
+    (line : NormalLine Position Content Peer)
+    : Position :=
+  line.fixed.position
+
+abbrev NormalLine.status
+    (line : NormalLine Position Content Peer)
+    : Status :=
+  line.state.status
+
+def setStatus
+    (line : NormalLine Position Content Peer)
+    (next : Status)
+    (_ : line.state.status.canBecome next)
+    : NormalLine Position Content Peer :=
+  { line with state := { line.state with status := next } }
+
+end NormalLine
+
+inductive Line where
+  | bottom
+  | normal (line : NormalLine Position Content Peer)
+  | top
 
 variable {Position Content Peer : Type}
 
--- Shorthands for the fields callers reach for most. `abbrev`, so they stay
--- definitionally the underlying projection and proofs by `rfl` keep working.
-abbrev Line.id (line : Line Position Content Peer) : LineId Peer := line.fixed.id
-abbrev Line.position (line : Line Position Content Peer) : Position := line.fixed.position
-abbrev Line.status (line : Line Position Content Peer) : Status := line.state.status
+abbrev Line.id
+    : (line : Line Position Content Peer) →  LineId Peer
+  | .bottom  => .bottom
+  | .top     => .top
+  | .normal line => .operation line.fixed.id
 
-abbrev Line.isBottomSentinel
-    (line : Line Position Content Peer)
-    : Prop :=
-  line.fixed.id = LineId.bottom
+abbrev Line.position
+    [spec : PositionSpec Position]
+    : (line : Line Position Content Peer) → Position
+  | .bottom  => spec.bottom
+  | .top     => spec.top
+  | .normal line => line.fixed.position
 
-abbrev Line.isTopSentinel
-    (line : Line Position Content Peer)
-    : Prop :=
-  line.fixed.id = LineId.top
+def Line.parents?
+  : Line Position Content Peer → Option (LineId Peer × LineId Peer)
+  | .bottom | .top => none
+  | .normal line   => some (line.fixed.parentLeft, line.fixed.parentRight)
+
+abbrev Line.status
+  : (line : Line Position Content Peer) → Status
+  | .bottom | .top  => .settled
+  | .normal line  => line.state.status
 
 abbrev Line.isBoundary
-    (line : Line Position Content Peer)
-    : Prop :=
-  line.isBottomSentinel ∨ line.isTopSentinel
-
-
-variable
-    [spec : PositionSpec Position]
-    [LT Peer]
+    : Line Position Content Peer → Prop
+  | .bottom | .top  => True
+  | .normal _       => False
 
 abbrev Line.isBottom
-    (line : Line Position Content Peer)
-    : Prop :=
-  line.isBottomSentinel ∧ line.position = spec.bottom
+    : (line : Line Position Content Peer) →  Prop
+  | .bottom => True
+  | _       => False
 
-abbrev Line.isTop
-    (line : Line Position Content Peer)
-    : Prop :=
-  line.isTopSentinel ∧ line.position = spec.top
+abbrev Line.isTopSentinel
+    : (line : Line Position Content Peer) →  Prop
+  | .top => True
+  | _ => False
 
 def Line.lt
+    [PositionSpec Position]
+    [LT Peer]
     (a b : Line Position Content Peer)
     : Prop :=
-  a.position < b.position ∨ (a.position = b.position ∧ a.id < b.id)
+  a.position < b.position ∨
+    (a.position = b.position ∧ a.id < b.id)
 
 instance instLTLine
+    [LT Peer]
+    [PositionSpec Position]
     : LT (Line Position Content Peer) where
   lt := Line.lt
 
 instance instDecidableLTLine
     [DecidableEq Peer]
+    [LT Peer]
     [DecidableLT Peer]
     [DecidableEq Position]
+    [PositionSpec Position]
     [DecidableLT Position]
     (a b : Line Position Content Peer)
     : Decidable (a < b) :=
   inferInstanceAs (Decidable (_ ∨ _))
 
 def Line.Sorted
+    [LT Peer]
+    [PositionSpec Position]
     : List (Line Position Content Peer) → Prop
   | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
   | _ => True
 
--- A transition can only update the state; `fixed` is carried forward unchanged.
-def Line.setStatus
-    (line : Line Position Content Peer)
-    (next : Status)
-    -- prop. obligation:
-    (_ : line.status.canBecome next)
-    : Line Position Content Peer :=
-  { line with state := {
-    line.state with status := next
-    }
-  }
+def Line.isVisible
+    : Line Position Content Peer → Prop
+  | .bottom | .top => False
+  | .normal line   => line.state.status ≠ .tombstone
 
--- A line the reader sees: neither sentinel, and not deleted.
-abbrev Line.isVisible
+instance instDecidableLineVisible
     (line : Line Position Content Peer)
-    : Prop :=
-  ¬ line.isBoundary ∧ line.status ≠ .tombstone
+    : Decidable line.isVisible :=
+  match line with
+  | .bottom | .top => isFalse id
+  | .normal l      => inferInstanceAs (Decidable (l.state.status ≠ .tombstone))
 
 end Syncordian

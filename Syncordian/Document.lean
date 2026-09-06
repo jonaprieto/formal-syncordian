@@ -8,68 +8,118 @@ variable (
     Peer
     : Type)
 
-variable
-  [LT Peer]
-
+-- A document stores only its ordinary lines. `bottom` and `top` are supplied by
+-- `line?` and `lines` instead of being stored, so no invariant has to keep them
+-- present, unique or settled.
 structure Document
     where
-  lines : List (Line Position Content Peer)
+  normalLines : List (NormalLine Position Content Peer)
 
 variable {Position Content Peer}
 
--- No two lines in a document share an identity.
+def Document.empty
+    : Document Position Content Peer :=
+  { normalLines := [] }
+
+-- Internal lookup: called only after `line?` has matched away the boundaries.
+def Document.normalLine?
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    (id : OpId Peer)
+    : Option (NormalLine Position Content Peer) :=
+  doc.normalLines.find? fun line => decide (line.id = id)
+
+-- The paper-facing lookup, over the full line-id domain: a parent may name
+-- `bottom`, `top` or an ordinary line.
+def Document.line?
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    : LineId Peer → Option (Line Position Content Peer)
+  | .bottom       => some .bottom
+  | .top          => some .top
+  | .operation id => (doc.normalLine? id).map .normal
+
+-- The boundaries resolve in every document, by definition.
+@[simp]
+theorem Document.line?_bottom
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    : doc.line? .bottom = some .bottom :=
+  rfl
+
+@[simp]
+theorem Document.line?_top
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    : doc.line? .top = some .top :=
+  rfl
+
+-- The virtual list, for statements that need the whole document.
+def Document.lines
+    (doc : Document Position Content Peer)
+    : List (Line Position Content Peer) :=
+  .bottom :: doc.normalLines.map Line.normal ++ [.top]
+
+def Document.visibleLines
+    (doc : Document Position Content Peer)
+    : List (NormalLine Position Content Peer) :=
+  doc.normalLines.filter fun line => line.status != .tombstone
+
+def Document.read
+    (doc : Document Position Content Peer)
+    : List Content :=
+  doc.visibleLines.map (·.fixed.content)
+
+-- Only an ordinary line is mutable, so the target is an `OpId`, never a `LineId`.
+def Document.updateNormal
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    (id : OpId Peer)
+    (f : NormalLine Position Content Peer → NormalLine Position Content Peer)
+    : Document Position Content Peer :=
+  { normalLines := doc.normalLines.map fun line => if line.id = id then f line else line }
+
+-- No two stored lines share an identity.
 def Document.HasUniqueIds
     (doc : Document Position Content Peer)
     : Prop :=
-  ∀ ⦃a b⦄,
-    a ∈ doc.lines →
-    b ∈ doc.lines →
-    a.id = b.id →
-    a = b
+  (doc.normalLines.map (·.id)).Nodup
 
-variable [spec : PositionSpec Position]
-
+-- Both parents of a stored line resolve, through `line?`, to a line of this document.
 def Document.HasPresentParents
+    [DecidableEq Peer]
     (doc : Document Position Content Peer)
     : Prop :=
-  ∀ line, line ∈ doc.lines →
-    line.isBoundary ∨
-      ((∃ parent ∈ doc.lines, parent.id = line.fixed.parentLeft) ∧
-        ∃ parent ∈ doc.lines, parent.id = line.fixed.parentRight)
+  ∀ line ∈ doc.normalLines,
+    (doc.line? line.fixed.parentLeft).isSome ∧
+      (doc.line? line.fixed.parentRight).isSome
 
+-- A stored line sits strictly between the positions of its parents.
 def Document.HasParentIntervals
+    [PositionSpec Position]
+    [DecidableEq Peer]
     (doc : Document Position Content Peer)
     : Prop :=
-  ∀ line, line ∈ doc.lines →
-    line.isBoundary ∨
-      ∀ left right,
-        left ∈ doc.lines →
-        left.id = line.fixed.parentLeft →
-        right ∈ doc.lines →
-        right.id = line.fixed.parentRight →
-        left.position < line.position ∧
-          line.position < right.position
+  ∀ line ∈ doc.normalLines,
+    ∀ left right,
+      doc.line? line.fixed.parentLeft = some left →
+      doc.line? line.fixed.parentRight = some right →
+      left.position < line.position ∧
+        line.position < right.position
 
 def Document.HasSortedLines
+    [PositionSpec Position]
+    [LT Peer]
     (doc : Document Position Content Peer)
     : Prop :=
-  Line.Sorted doc.lines
-
-def Document.HasBottom
-    (doc : Document Position Content Peer)
-    : Prop :=
-  ∃ line ∈ doc.lines, line.isBottom
-
-def Document.HasTop
-    (doc : Document Position Content Peer)
-    : Prop :=
-  ∃ line ∈ doc.lines, line.isTop
+  doc.normalLines.Pairwise fun a b => Line.lt (.normal a) (.normal b)
 
 structure Document.WellFormed
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
     (doc : Document Position Content Peer)
     : Prop where
-  bottom          : Document.HasBottom doc
-  top             : Document.HasTop doc
   uniqueIds       : Document.HasUniqueIds doc
   presentParents  : Document.HasPresentParents doc
   parentIntervals : Document.HasParentIntervals doc
@@ -83,39 +133,8 @@ abbrev WellFormedDocument
       : Type)
     [PositionSpec Position]
     [LT Peer]
+    [DecidableEq Peer]
     :=
   { doc : Document Position Content Peer // Document.WellFormed doc }
-
-theorem WellFormedDocument.bottom_unique
-    (doc : WellFormedDocument Position Content Peer)
-    {a b : Line Position Content Peer}
-    (ha : a ∈ doc.val.lines)
-    (hb : b ∈ doc.val.lines)
-    (ha_id : a.id = LineId.bottom)
-    (hb_id : b.id = LineId.bottom)
-    : a = b :=
-  doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
-
-theorem WellFormedDocument.top_unique
-    (doc : WellFormedDocument Position Content Peer)
-    {a b : Line Position Content Peer}
-    (ha : a ∈ doc.val.lines)
-    (hb : b ∈ doc.val.lines)
-    (ha_id : a.id = LineId.top)
-    (hb_id : b.id = LineId.top)
-    : a = b :=
-  doc.property.uniqueIds ha hb (ha_id.trans hb_id.symm)
-
-variable [DecidableEq Peer]
-
-def WellFormedDocument.visibleLines
-    (doc : WellFormedDocument Position Content Peer)
-    : List (Line Position Content Peer) :=
-  doc.val.lines.filter fun line => decide line.isVisible
-
-def WellFormedDocument.read
-    (doc : WellFormedDocument Position Content Peer)
-    : List Content :=
-  doc.visibleLines.map (·.fixed.content)
 
 end Syncordian
