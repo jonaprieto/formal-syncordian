@@ -79,11 +79,11 @@ def storedPayload
     (line : NormalLine Position Content Peer)
     : StoredPayload Position Content Peer Tag
     where
-  leftSignature  := signatures.storedSignature line.fixed.parentLeft
-  left           := line.fixed.parentLeft
+  leftSignature  := signatures.storedSignature line.parentLeft
+  left           := line.parentLeft
   content        := line.fixed.content
-  rightSignature := signatures.storedSignature line.fixed.parentRight
-  right          := line.fixed.parentRight
+  rightSignature := signatures.storedSignature line.parentRight
+  right          := line.parentRight
   id             := line.id
   position       := line.position
 
@@ -102,11 +102,11 @@ theorem storedPayload_congr
     {left right : StoredSignatures Peer Key Tag}
     (line : NormalLine Position Content Peer)
     (parentLeft :
-      left.storedSignature line.fixed.parentLeft =
-        right.storedSignature line.fixed.parentLeft)
+      left.storedSignature line.parentLeft =
+        right.storedSignature line.parentLeft)
     (parentRight :
-      left.storedSignature line.fixed.parentRight =
-        right.storedSignature line.fixed.parentRight)
+      left.storedSignature line.parentRight =
+        right.storedSignature line.parentRight)
     : left.storedPayload line = right.storedPayload line := by
   simp [storedPayload, parentLeft, parentRight]
 
@@ -145,11 +145,11 @@ theorem storedSignature_unique
       have sameId : line.id = opId := by simpa using List.find?_some found
       subst sameId
       have parentLeft :=
-        ih line.fixed.parentLeft
+        ih line.parentLeft
           ⟨line, member, rfl, .inl rfl⟩
           (presentParents line member).1
       have parentRight :=
-        ih line.fixed.parentRight
+        ih line.parentRight
           ⟨line, member, rfl, .inr rfl⟩
           (presentParents line member).2
       rw [leftConsistent.2.2 line member, rightConsistent.2.2 line member, sameDocumentKey,

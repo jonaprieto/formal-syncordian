@@ -50,6 +50,16 @@ abbrev NormalLine.position
     : Position :=
   line.fixed.position
 
+abbrev NormalLine.parentLeft
+    (line : NormalLine Position Content Peer)
+    : LineId Peer :=
+  line.fixed.parentLeft
+
+abbrev NormalLine.parentRight
+    (line : NormalLine Position Content Peer)
+    : LineId Peer :=
+  line.fixed.parentRight
+
 abbrev NormalLine.status
     (line : NormalLine Position Content Peer)
     : Status :=
@@ -87,7 +97,7 @@ abbrev Line.position
 def Line.parents?
   : Line Position Content Peer → Option (LineId Peer × LineId Peer)
   | .bottom | .top => none
-  | .normal line   => some (line.fixed.parentLeft, line.fixed.parentRight)
+  | .normal line   => some (line.parentLeft, line.parentRight)
 
 abbrev Line.status
   : (line : Line Position Content Peer) → Status
