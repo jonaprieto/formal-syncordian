@@ -2,10 +2,11 @@ import Syncordian.OpId
 
 namespace Syncordian
 
-variable (
+variable
+  (
     Peer
-    : Type)
-variable [LT Peer]
+    : Type
+  )
 
 inductive LineId
     where
@@ -13,6 +14,8 @@ inductive LineId
   | operation (id : OpId Peer) -- the line created by this insertion
   | top
 deriving DecidableEq, Repr
+
+variable [LT Peer]
 
 def LineId.lt
     : LineId Peer → LineId Peer → Prop

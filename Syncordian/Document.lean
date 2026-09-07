@@ -2,11 +2,13 @@ import Syncordian.Line
 
 namespace Syncordian
 
-variable (
+variable
+  (
     Position
     Content
     Peer
-    : Type)
+    : Type
+  )
 
 -- Raw storage holds only ordinary lines. `bottom` and `top` are supplied by
 -- `line?` and `lines` instead of being stored, so no invariant has to keep them
@@ -143,10 +145,14 @@ def RawDocument.HasSortedLines
     : Prop :=
   doc.normalLines.Pairwise fun a b => Line.lt (.normal a) (.normal b)
 
+section CertifiedDocument
+
+variable
+  [PositionSpec Position]
+  [LT Peer]
+  [DecidableEq Peer]
+
 structure RawDocument.WellFormed
-    [PositionSpec Position]
-    [LT Peer]
-    [DecidableEq Peer]
     (doc : RawDocument Position Content Peer)
     : Prop where
   uniqueIds       : RawDocument.HasUniqueIds doc
@@ -156,9 +162,6 @@ structure RawDocument.WellFormed
   sortedLines     : RawDocument.HasSortedLines doc
 
 theorem RawDocument.empty_wellFormed
-    [PositionSpec Position]
-    [LT Peer]
-    [DecidableEq Peer]
     : (RawDocument.empty : RawDocument Position Content Peer).WellFormed := by
   refine ⟨by simp [RawDocument.empty, RawDocument.HasUniqueIds],
     by simp [RawDocument.empty, RawDocument.HasPresentParents, RawDocument.line?],
@@ -178,33 +181,23 @@ abbrev Document
   { doc : RawDocument Position Content Peer // RawDocument.WellFormed doc }
 
 abbrev Document.raw
-    [PositionSpec Position]
-    [LT Peer]
-    [DecidableEq Peer]
     (doc : Document Position Content Peer)
     : RawDocument Position Content Peer :=
   doc.val
 
 abbrev Document.wellFormed
-    [PositionSpec Position]
-    [LT Peer]
-    [DecidableEq Peer]
     (doc : Document Position Content Peer)
     : doc.raw.WellFormed :=
   doc.property
 
 def Document.empty
-    [PositionSpec Position]
-    [LT Peer]
-    [DecidableEq Peer]
     : Document Position Content Peer :=
   ⟨RawDocument.empty, RawDocument.empty_wellFormed⟩
 
 instance
-    [PositionSpec Position]
-    [LT Peer]
-    [DecidableEq Peer]
     : Inhabited (Document Position Content Peer) :=
   ⟨Document.empty⟩
+
+end CertifiedDocument
 
 end Syncordian

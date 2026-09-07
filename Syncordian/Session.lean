@@ -2,9 +2,11 @@ import Syncordian.LineId
 
 namespace Syncordian
 
-variable (
+variable
+  (
     Peer
-    : Type)
+    : Type
+  )
 
 -- the pair of parent lines that defines the interval where a block began.
 -- The session identifies the authored block.
