@@ -1,5 +1,7 @@
 import Syncordian.Document
+import Syncordian.DocumentGenesis
 import Syncordian.Message
+import Syncordian.Node
 import Syncordian.Line
 import Syncordian.LineId
 import Syncordian.Operation
