@@ -163,10 +163,17 @@ structure RawDocument.WellFormed
 
 theorem RawDocument.empty_wellFormed
     : (RawDocument.empty : RawDocument Position Content Peer).WellFormed := by
-  refine ⟨by simp [RawDocument.empty, RawDocument.HasUniqueIds],
+  refine ⟨
+    -- uniqueIds
+    by simp [RawDocument.empty, RawDocument.HasUniqueIds],
+    -- presentParents
     by simp [RawDocument.empty, RawDocument.HasPresentParents, RawDocument.line?],
+    -- parentIntervals
     by simp [RawDocument.empty, RawDocument.HasParentIntervals, RawDocument.line?],
-    ?_, by simp [RawDocument.empty, RawDocument.HasSortedLines]⟩
+    -- parentRanked
+    ?_,
+    -- sortedLines
+    by simp [RawDocument.empty, RawDocument.HasSortedLines]⟩
   refine ⟨fun child => Acc.intro child ?_⟩
   intro parent edge
   simp [RawDocument.empty, RawDocument.ParentBefore] at edge
