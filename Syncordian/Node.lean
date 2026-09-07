@@ -14,6 +14,8 @@ variable
     : Type
   )
 
+variable [PositionSpec Position] [LT Peer] [DecidableEq Peer]
+
 structure Configuration
     where
   genesis  : DocumentGenesis Secret Key

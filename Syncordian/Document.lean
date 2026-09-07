@@ -8,32 +8,32 @@ variable (
     Peer
     : Type)
 
--- A document stores only its ordinary lines. `bottom` and `top` are supplied by
+-- Raw storage holds only ordinary lines. `bottom` and `top` are supplied by
 -- `line?` and `lines` instead of being stored, so no invariant has to keep them
 -- present, unique or settled.
-structure Document
+structure RawDocument
     where
   normalLines : List (NormalLine Position Content Peer)
 
 variable {Position Content Peer}
 
-def Document.empty
-    : Document Position Content Peer :=
+def RawDocument.empty
+    : RawDocument Position Content Peer :=
   { normalLines := [] }
 
-instance : Inhabited (Document Position Content Peer) :=
-  { default := Document.empty }
+instance : Inhabited (RawDocument Position Content Peer) :=
+  { default := RawDocument.empty }
 
-def Document.normalLine?
+def RawDocument.normalLine?
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     (id : OpId Peer)
     : Option (NormalLine Position Content Peer) :=
   doc.normalLines.find? fun line => decide (line.id = id)
 
-def Document.line?
+def RawDocument.line?
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : LineId Peer → Option (Line Position Content Peer)
   | .bottom       => some .bottom
   | .top          => some .top
@@ -41,64 +41,64 @@ def Document.line?
 
 -- The boundaries resolve in every document, by definition.
 @[simp]
-theorem Document.line?_bottom
+theorem RawDocument.line?_bottom
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : doc.line? .bottom = some .bottom :=
   rfl
 
 @[simp]
-theorem Document.line?_top
+theorem RawDocument.line?_top
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : doc.line? .top = some .top :=
   rfl
 
 -- The virtual list, for statements that need the whole document.
-def Document.lines
-    (doc : Document Position Content Peer)
+def RawDocument.lines
+    (doc : RawDocument Position Content Peer)
     : List (Line Position Content Peer) :=
   .bottom :: doc.normalLines.map Line.normal ++ [.top]
 
-def Document.visibleLines
-    (doc : Document Position Content Peer)
+def RawDocument.visibleLines
+    (doc : RawDocument Position Content Peer)
     : List (NormalLine Position Content Peer) :=
   doc.normalLines.filter fun line => line.status != .tombstone
 
-def Document.read
-    (doc : Document Position Content Peer)
+def RawDocument.read
+    (doc : RawDocument Position Content Peer)
     : List Content :=
   doc.visibleLines.map (·.fixed.content)
 
 -- Only an ordinary line is mutable, so the target is an `OpId`, never a `LineId`.
-def Document.updateNormal
+def RawDocument.updateNormal
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     (id : OpId Peer)
     (f : NormalLine Position Content Peer → NormalLine Position Content Peer)
-    : Document Position Content Peer :=
+    : RawDocument Position Content Peer :=
   { normalLines := doc.normalLines.map fun line => if line.id = id then f line else line }
 
 -- No two stored lines share an identity.
-def Document.HasUniqueIds
-    (doc : Document Position Content Peer)
+def RawDocument.HasUniqueIds
+    (doc : RawDocument Position Content Peer)
     : Prop :=
   (doc.normalLines.map (·.id)).Nodup
 
 -- Both parents of a stored line resolve, through `line?`, to a line of this document.
-def Document.HasPresentParents
+def RawDocument.HasPresentParents
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : Prop :=
   ∀ line ∈ doc.normalLines,
     (doc.line? line.parentLeft).isSome ∧
       (doc.line? line.parentRight).isSome
 
 -- A stored line sits strictly between the positions of its parents.
-def Document.HasParentIntervals
+def RawDocument.HasParentIntervals
     [PositionSpec Position]
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : Prop :=
   ∀ line ∈ doc.normalLines,
     ∀ left right,
@@ -107,8 +107,8 @@ def Document.HasParentIntervals
       left.position < line.position ∧
         line.position < right.position
 
-def Document.ParentBefore
-    (doc : Document Position Content Peer)
+def RawDocument.ParentBefore
+    (doc : RawDocument Position Content Peer)
     (parent child : LineId Peer)
     : Prop :=
   ∃ line ∈ doc.normalLines,
@@ -118,53 +118,93 @@ def Document.ParentBefore
 -- Every ancestor chain is finite, which is acyclicity for a finite document.
 -- `HasParentIntervals` is spatial correctness; this is the temporal half, and a
 -- document needs both.
-def Document.ParentRanked
-    (doc : Document Position Content Peer)
+def RawDocument.ParentRanked
+    (doc : RawDocument Position Content Peer)
     : Prop :=
   WellFounded doc.ParentBefore
 
-def Document.ParentRankedBy
-    (doc : Document Position Content Peer)
+def RawDocument.ParentRankedBy
+    (doc : RawDocument Position Content Peer)
     (parentRank : LineId Peer → Nat)
     : Prop :=
   ∀ parent child, doc.ParentBefore parent child → parentRank parent < parentRank child
 
-theorem Document.parentRanked_of_parentRankedBy
-    {doc : Document Position Content Peer}
+theorem RawDocument.parentRanked_of_parentRankedBy
+    {doc : RawDocument Position Content Peer}
     {parentRank : LineId Peer → Nat}
     (ranked : doc.ParentRankedBy parentRank)
     : doc.ParentRanked :=
   Subrelation.wf (fun {_ _} step => ranked _ _ step) (InvImage.wf parentRank Nat.lt_wfRel.wf)
 
-def Document.HasSortedLines
+def RawDocument.HasSortedLines
     [PositionSpec Position]
     [LT Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : Prop :=
   doc.normalLines.Pairwise fun a b => Line.lt (.normal a) (.normal b)
 
-structure Document.WellFormed
+structure RawDocument.WellFormed
     [PositionSpec Position]
     [LT Peer]
     [DecidableEq Peer]
-    (doc : Document Position Content Peer)
+    (doc : RawDocument Position Content Peer)
     : Prop where
-  uniqueIds       : Document.HasUniqueIds doc
-  presentParents  : Document.HasPresentParents doc
-  parentIntervals : Document.HasParentIntervals doc
-  parentRanked    : Document.ParentRanked doc
-  sortedLines     : Document.HasSortedLines doc
+  uniqueIds       : RawDocument.HasUniqueIds doc
+  presentParents  : RawDocument.HasPresentParents doc
+  parentIntervals : RawDocument.HasParentIntervals doc
+  parentRanked    : RawDocument.ParentRanked doc
+  sortedLines     : RawDocument.HasSortedLines doc
 
--- subtype, a document + what it means to be well-defined/formed.
-abbrev WellFormedDocument
-    ( Position
-      Content
-      Peer
-      : Type)
+theorem RawDocument.empty_wellFormed
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
+    : (RawDocument.empty : RawDocument Position Content Peer).WellFormed := by
+  refine ⟨by simp [RawDocument.empty, RawDocument.HasUniqueIds],
+    by simp [RawDocument.empty, RawDocument.HasPresentParents, RawDocument.line?],
+    by simp [RawDocument.empty, RawDocument.HasParentIntervals, RawDocument.line?],
+    ?_, by simp [RawDocument.empty, RawDocument.HasSortedLines]⟩
+  refine ⟨fun child => Acc.intro child ?_⟩
+  intro parent edge
+  simp [RawDocument.empty, RawDocument.ParentBefore] at edge
+
+-- A document is raw storage bundled with its well-formedness certificate.
+abbrev Document
+    (Position Content Peer : Type)
     [PositionSpec Position]
     [LT Peer]
     [DecidableEq Peer]
     :=
-  { doc : Document Position Content Peer // Document.WellFormed doc }
+  { doc : RawDocument Position Content Peer // RawDocument.WellFormed doc }
+
+abbrev Document.raw
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    : RawDocument Position Content Peer :=
+  doc.val
+
+abbrev Document.wellFormed
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
+    (doc : Document Position Content Peer)
+    : doc.raw.WellFormed :=
+  doc.property
+
+def Document.empty
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
+    : Document Position Content Peer :=
+  ⟨RawDocument.empty, RawDocument.empty_wellFormed⟩
+
+instance
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
+    : Inhabited (Document Position Content Peer) :=
+  ⟨Document.empty⟩
 
 end Syncordian
