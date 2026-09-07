@@ -65,6 +65,11 @@ abbrev NormalLine.status
     : Status :=
   line.state.status
 
+abbrev NormalLine.author
+    (line : NormalLine Position Content Peer)
+    : Peer :=
+  line.id.writer
+
 def setStatus
     (line : NormalLine Position Content Peer)
     (next : Status)
