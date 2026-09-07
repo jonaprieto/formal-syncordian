@@ -5,7 +5,7 @@ import Syncordian.Node
 import Syncordian.Line
 import Syncordian.LineId
 import Syncordian.Operation
-import Syncordian.OperationId
+import Syncordian.OpId
 import Syncordian.Path
 import Syncordian.PathId
 import Syncordian.PathIdOrder

@@ -1,4 +1,4 @@
-import Syncordian.OperationId
+import Syncordian.OpId
 
 namespace Syncordian
 
@@ -10,7 +10,7 @@ variable [LT Peer]
 inductive LineId
     where
   | bottom
-  | operation (id : OpId Peer)
+  | operation (id : OpId Peer) -- the line created by this insertion
   | top
 deriving DecidableEq, Repr
 
