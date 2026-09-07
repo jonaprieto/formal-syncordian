@@ -22,7 +22,6 @@ structure LineFixedData
   parentRight : LineId Peer
   session     : Session Peer -- Is a better name for "Session"?
   content     : Content
-  writer      : Peer
 
 -- Things unsolved to figure with M and N
 -- insertion_attempts: integer(),
@@ -50,6 +49,16 @@ abbrev NormalLine.position
     (line : NormalLine Position Content Peer)
     : Position :=
   line.fixed.position
+
+abbrev NormalLine.parentLeft
+    (line : NormalLine Position Content Peer)
+    : LineId Peer :=
+  line.fixed.parentLeft
+
+abbrev NormalLine.parentRight
+    (line : NormalLine Position Content Peer)
+    : LineId Peer :=
+  line.fixed.parentRight
 
 abbrev NormalLine.status
     (line : NormalLine Position Content Peer)
@@ -88,7 +97,7 @@ abbrev Line.position
 def Line.parents?
   : Line Position Content Peer → Option (LineId Peer × LineId Peer)
   | .bottom | .top => none
-  | .normal line   => some (line.fixed.parentLeft, line.fixed.parentRight)
+  | .normal line   => some (line.parentLeft, line.parentRight)
 
 abbrev Line.status
   : (line : Line Position Content Peer) → Status

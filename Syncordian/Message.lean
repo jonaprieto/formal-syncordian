@@ -13,7 +13,7 @@ variable
 
 structure Message  where
   operation     : Operation Position Content Peer Tag
-  authenticator : Tag
+  admissionTag  : Tag
 deriving DecidableEq, Repr
 
 end Syncordian
