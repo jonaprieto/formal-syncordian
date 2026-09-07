@@ -1,5 +1,6 @@
 # Lake build output
 /.lake/
+/docbuild/.lake/
 /build/
 *.olean
 *.ilean
