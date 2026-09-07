@@ -123,6 +123,19 @@ def Document.ParentRanked
     : Prop :=
   WellFounded doc.ParentBefore
 
+def Document.ParentRankedBy
+    (doc : Document Position Content Peer)
+    (parentRank : LineId Peer → Nat)
+    : Prop :=
+  ∀ parent child, doc.ParentBefore parent child → parentRank parent < parentRank child
+
+theorem Document.parentRanked_of_parentRankedBy
+    {doc : Document Position Content Peer}
+    {parentRank : LineId Peer → Nat}
+    (ranked : doc.ParentRankedBy parentRank)
+    : doc.ParentRanked :=
+  Subrelation.wf (fun {_ _} step => ranked _ _ step) (InvImage.wf parentRank Nat.lt_wfRel.wf)
+
 def Document.HasSortedLines
     [PositionSpec Position]
     [LT Peer]
