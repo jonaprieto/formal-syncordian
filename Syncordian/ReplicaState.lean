@@ -14,6 +14,7 @@ variable
     : Type
   )
 
+variable [PositionSpec Position] [LT Peer] [DecidableEq Peer]
 
 structure ReplicaState  where
   document   : Document Position Content Peer

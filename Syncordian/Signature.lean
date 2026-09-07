@@ -88,13 +88,16 @@ def storedPayload
   position       := line.position
 
 def Consistent
+    [PositionSpec Position]
+    [LT Peer]
+    [DecidableEq Peer]
     (mac : Key → StoredPayload Position Content Peer Tag → Tag)
     (doc : Document Position Content Peer)
     (signatures : StoredSignatures Peer Key Tag)
     : Prop :=
   signatures.storedSignature .bottom = signatures.bottomSignature ∧
     signatures.storedSignature .top = signatures.topSignature ∧
-      ∀ line ∈ doc.normalLines,
+      ∀ line ∈ doc.raw.normalLines,
         signatures.storedSignature (.operation line.id) =
           mac signatures.keys.document (signatures.storedPayload line)
 
@@ -111,20 +114,20 @@ theorem storedPayload_congr
   simp [storedPayload, parentLeft, parentRight]
 
 theorem storedSignature_unique
+    [PositionSpec Position]
+    [LT Peer]
     [DecidableEq Peer]
     {mac : Key → StoredPayload Position Content Peer Tag → Tag}
     {doc : Document Position Content Peer}
     {left right : StoredSignatures Peer Key Tag}
-    (presentParents : doc.HasPresentParents)
-    (parentRanked : doc.ParentRanked)
     (leftConsistent : left.Consistent mac doc)
     (rightConsistent : right.Consistent mac doc)
     (sameDocumentKey : left.keys.document = right.keys.document)
     (sameBottom : left.bottomSignature = right.bottomSignature)
     (sameTop : left.topSignature = right.topSignature)
-    : ∀ id, (doc.line? id).isSome → left.storedSignature id = right.storedSignature id := by
+    : ∀ id, (doc.raw.line? id).isSome → left.storedSignature id = right.storedSignature id := by
   intro id
-  induction id using parentRanked.induction with
+  induction id using doc.wellFormed.parentRanked.induction with
   | _ id ih =>
     match id with
     | .bottom =>
@@ -135,23 +138,23 @@ theorem storedSignature_unique
       rw [leftConsistent.2.1, rightConsistent.2.1, sameTop]
     | .operation opId =>
       intro present
-      obtain ⟨line, found⟩ : ∃ line, doc.normalLine? opId = some line := by
-        cases lookup : doc.normalLine? opId with
-        | none      => simp [Document.line?, lookup] at present
+      obtain ⟨line, found⟩ : ∃ line, doc.raw.normalLine? opId = some line := by
+        cases lookup : doc.raw.normalLine? opId with
+        | none      => simp [RawDocument.line?, lookup] at present
         | some line => exact ⟨line, rfl⟩
-      have found : doc.normalLines.find? (fun line => decide (line.id = opId)) = some line :=
+      have found : doc.raw.normalLines.find? (fun line => decide (line.id = opId)) = some line :=
         found
-      have member : line ∈ doc.normalLines := List.mem_of_find?_eq_some found
+      have member : line ∈ doc.raw.normalLines := List.mem_of_find?_eq_some found
       have sameId : line.id = opId := by simpa using List.find?_some found
       subst sameId
       have parentLeft :=
         ih line.parentLeft
           ⟨line, member, rfl, .inl rfl⟩
-          (presentParents line member).1
+          (doc.wellFormed.presentParents line member).1
       have parentRight :=
         ih line.parentRight
           ⟨line, member, rfl, .inr rfl⟩
-          (presentParents line member).2
+          (doc.wellFormed.presentParents line member).2
       rw [leftConsistent.2.2 line member, rightConsistent.2.2 line member, sameDocumentKey,
         storedPayload_congr line parentLeft parentRight]
 
