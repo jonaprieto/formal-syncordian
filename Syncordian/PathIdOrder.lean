@@ -341,7 +341,7 @@ instance : PositionSpec { x : PathId // x.WellFormed } where
   irrefl x      := PathId.lt_irrefl x.val
   trans hab hbc := PathId.lt_trans hab hbc
   total a b h   := PathId.lt_total a.val b.val fun hv => h (Subtype.ext hv)
-  bottom_lt     := by
+  bottom_lt := by
     intro x hx
     exact PathId.infimum_lt fun hv => hx (Subtype.ext hv)
   lt_top := by

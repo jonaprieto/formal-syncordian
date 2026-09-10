@@ -72,7 +72,7 @@ abbrev NormalLine.author
     : Peer :=
   line.id.writer
 
-def setStatus
+def NormalLine.setStatus
     (line : NormalLine Position Content Peer)
     (next : Status)
     (_ : line.state.status.canBecome next)
@@ -137,7 +137,8 @@ def Line.lt
 instance instLTLine
     [PositionSpec Position]
     [LT Peer]
-    : LT (Line Position Content Peer) where
+    : LT (Line Position Content Peer)
+    where
   lt := Line.lt
 
 instance instDecidableLTLine

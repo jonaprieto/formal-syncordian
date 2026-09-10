@@ -154,7 +154,8 @@ variable
 
 structure RawDocument.WellFormed
     (doc : RawDocument Position Content Peer)
-    : Prop where
+    : Prop
+    where
   uniqueIds       : RawDocument.HasUniqueIds doc
   presentParents  : RawDocument.HasPresentParents doc
   parentIntervals : RawDocument.HasParentIntervals doc

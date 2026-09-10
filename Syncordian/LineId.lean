@@ -31,7 +31,8 @@ def LineId.lt
   | .top, .operation _ => False
 
 instance instLTLineId
-    : LT (LineId Peer) where
+    : LT (LineId Peer)
+    where
   lt := LineId.lt Peer
 
 variable {Peer}
