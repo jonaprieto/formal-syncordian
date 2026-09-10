@@ -5,11 +5,13 @@ import Syncordian.Session
 
 namespace Syncordian
 
-variable (
+variable
+  (
     Position
     Content
     Peer
-    : Type)
+    : Type
+  )
 
 section NormalLine
 
@@ -70,7 +72,7 @@ abbrev NormalLine.author
     : Peer :=
   line.id.writer
 
-def setStatus
+def NormalLine.setStatus
     (line : NormalLine Position Content Peer)
     (next : Status)
     (_ : line.state.status.canBecome next)
@@ -84,7 +86,7 @@ inductive Line where
   | normal (line : NormalLine Position Content Peer)
   | top
 
-variable {Position Content Peer : Type}
+variable {Position Content Peer}
 
 abbrev Line.id
     : (line : Line Position Content Peer) →  LineId Peer
@@ -133,25 +135,26 @@ def Line.lt
     (a.position = b.position ∧ a.id < b.id)
 
 instance instLTLine
-    [LT Peer]
     [PositionSpec Position]
-    : LT (Line Position Content Peer) where
+    [LT Peer]
+    : LT (Line Position Content Peer)
+    where
   lt := Line.lt
 
 instance instDecidableLTLine
-    [DecidableEq Peer]
-    [LT Peer]
-    [DecidableLT Peer]
-    [DecidableEq Position]
     [PositionSpec Position]
+    [DecidableEq Position]
     [DecidableLT Position]
+    [LT Peer]
+    [DecidableEq Peer]
+    [DecidableLT Peer]
     (a b : Line Position Content Peer)
     : Decidable (a < b) :=
   inferInstanceAs (Decidable (_ ∨ _))
 
 def Line.Sorted
-    [LT Peer]
     [PositionSpec Position]
+    [LT Peer]
     : List (Line Position Content Peer) → Prop
   | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
   | _ => True

@@ -14,7 +14,10 @@ variable
     : Type
   )
 
-variable [PositionSpec Position] [LT Peer] [DecidableEq Peer]
+variable
+  [PositionSpec Position]
+  [LT Peer]
+  [DecidableEq Peer]
 
 structure Configuration
     where

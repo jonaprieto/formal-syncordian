@@ -13,7 +13,8 @@ class PositionSpec (α : Type) where
 
 instance
     [spec : PositionSpec α]
-    : LT α where
+    : LT α
+    where
   lt := spec.ltPos
 
 theorem exists_middle

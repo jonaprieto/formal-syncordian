@@ -14,11 +14,15 @@ variable
     : Type
   )
 
-variable [PositionSpec Position] [LT Peer] [DecidableEq Peer]
+variable
+  [PositionSpec Position]
+  [LT Peer]
+  [DecidableEq Peer]
 
-structure ReplicaState  where
-  document   : Document Position Content Peer
-  progress   : Peer → Nat -- progress vector
+structure ReplicaState
+    where
+  document : Document Position Content Peer
+  progress : Peer → Nat -- progress vector
   -- Received messages that are not yet deliverable, at most one per operation
   -- identifier.
   buffer     : List (Message Position Content Peer Tag)
@@ -28,11 +32,11 @@ structure ReplicaState  where
 
 def initialState : ReplicaState Position Content Peer Tag :=
   {
-    document := Document.empty
-    progress := fun _ => 0
-    buffer := []
+    document   := Document.empty
+    progress   := fun _ => 0
+    buffer     := []
     operations := []
-    aliases := fun _ => none
+    aliases    := fun _ => none
   }
 
 instance

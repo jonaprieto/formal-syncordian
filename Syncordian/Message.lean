@@ -11,9 +11,10 @@ variable
     : Type
   )
 
-structure Message  where
-  operation     : Operation Position Content Peer Tag
-  admissionTag  : Tag
+structure Message
+    where
+  operation    : Operation Position Content Peer Tag
+  admissionTag : Tag
 deriving DecidableEq, Repr
 
 end Syncordian
