@@ -26,7 +26,8 @@ theorem exists_middle
     (h : a < b)
     : ∃ c,
       a < c ∧
-      c < b :=
+      c < b
+    :=
   spec.dense h
 
 end Syncordian

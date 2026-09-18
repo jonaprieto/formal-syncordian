@@ -44,39 +44,46 @@ structure NormalLine
 
 abbrev NormalLine.id
     (line : NormalLine Position Content Peer)
-    : OpId Peer :=
+    : OpId Peer
+    :=
   line.fixed.id
 
 abbrev NormalLine.position
     (line : NormalLine Position Content Peer)
-    : Position :=
+    : Position
+    :=
   line.fixed.position
 
 abbrev NormalLine.parentLeft
     (line : NormalLine Position Content Peer)
-    : LineId Peer :=
+    : LineId Peer
+    :=
   line.fixed.parentLeft
 
 abbrev NormalLine.parentRight
     (line : NormalLine Position Content Peer)
-    : LineId Peer :=
+    : LineId Peer
+    :=
   line.fixed.parentRight
 
 abbrev NormalLine.status
     (line : NormalLine Position Content Peer)
-    : Status :=
+    : Status
+    :=
   line.state.status
 
 abbrev NormalLine.author
     (line : NormalLine Position Content Peer)
-    : Peer :=
+    : Peer
+    :=
   line.id.writer
 
 def NormalLine.setStatus
     (line : NormalLine Position Content Peer)
     (next : Status)
     (_ : line.state.status.canBecome next)
-    : NormalLine Position Content Peer :=
+    : NormalLine Position Content Peer
+    :=
   { line with state := { line.state with status := next } }
 
 end NormalLine
@@ -137,7 +144,8 @@ def Line.lt
     [PositionSpec Position]
     [LT Peer]
     (a b : Line Position Content Peer)
-    : Prop :=
+    : Prop
+    :=
   a.position < b.position ∨
     (a.position = b.position ∧ a.id < b.id)
 
@@ -156,7 +164,8 @@ instance instDecidableLTLine
     [DecidableEq Peer]
     [DecidableLT Peer]
     (a b : Line Position Content Peer)
-    : Decidable (a < b) :=
+    : Decidable (a < b)
+    :=
   inferInstanceAs (Decidable (_ ∨ _))
 
 def Line.Sorted
@@ -175,7 +184,8 @@ def Line.isVisible
 
 instance instDecidableLineVisible
     (line : Line Position Content Peer)
-    : Decidable line.isVisible :=
+    : Decidable line.isVisible
+    :=
   match line with
   | .bottom | .top => isFalse id
   | .normal l      => inferInstanceAs (Decidable (l.state.status ≠ .tombstone))

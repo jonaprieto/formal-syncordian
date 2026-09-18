@@ -25,12 +25,14 @@ instance : LE PathId := leOfOrd
 
 theorem PathId.infimum_lt_path
     (p : Path)
-    : PathId.infimum < .path p := by
+    : PathId.infimum < .path p
+    := by
   rfl
 
 theorem PathId.path_lt_supremum
     (p : Path)
-    : PathId.path p < .supremum := by
+    : PathId.path p < .supremum
+    := by
   rfl
 
 #guard
@@ -82,7 +84,8 @@ theorem Path.ext_toList (p : Path) : p.ext.toList = p.toList ++ [Segment.least] 
 theorem lastSegOf_belowL
     (x s : Segment)
     (ts : List Segment)
-    : lastSegOf x (belowL (s :: ts)) = Segment.least := by
+    : lastSegOf x (belowL (s :: ts)) = Segment.least
+    := by
   induction ts generalizing x s with
   | nil => rfl
   | cons t ts ih => exact ih s t
@@ -90,7 +93,8 @@ theorem lastSegOf_belowL
 theorem lastSegOf_append_least
     (x : Segment)
     (ys : List Segment)
-    : lastSegOf x (ys ++ [Segment.least]) = Segment.least := by
+    : lastSegOf x (ys ++ [Segment.least]) = Segment.least
+    := by
   induction ys generalizing x with
   | nil => rfl
   | cons y ys ih => exact ih y
@@ -99,7 +103,8 @@ theorem belowL_cons
     (s : Segment)
     (ts : List Segment)
     : ∃ (y : Segment) (ys : List Segment),
-      belowL (s :: ts) = y :: ys := by
+      belowL (s :: ts) = y :: ys
+    := by
   cases ts with
   | nil => exact ⟨_, _, rfl⟩
   | cons t ts => exact ⟨_, _, rfl⟩

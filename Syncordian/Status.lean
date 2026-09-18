@@ -37,7 +37,8 @@ instance : Min Status := minOfLe
 
 theorem Status.compare_eq_rank
     (a b : Status)
-    : compare a b = compare a.rank b.rank := by
+    : compare a b = compare a.rank b.rank
+    := by
   cases a <;> cases b <;> rfl
 
 theorem Status.canBecome_refl (s : Status) : s.canBecome s := by
@@ -47,7 +48,8 @@ theorem Status.canBecome_trans
     {a b c : Status}
     (hab : a.canBecome b)
     (hbc : b.canBecome c)
-    : a.canBecome c := by
+    : a.canBecome c
+    := by
   exact Nat.le_trans hab hbc
 
 -- A settled line is never demoted back to aura.

@@ -9,7 +9,8 @@ deriving DecidableEq, Repr
 
 def Path.toList
     (p : Path)
-    : List Segment :=
+    : List Segment
+    :=
   p.head :: p.tail
 
 def Path.compareList

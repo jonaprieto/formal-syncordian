@@ -40,7 +40,8 @@ def initialState : ReplicaState Position Content Peer Tag :=
   }
 
 instance
-    : Inhabited (ReplicaState Position Content Peer Tag) :=
+    : Inhabited (ReplicaState Position Content Peer Tag)
+    :=
   ⟨initialState Position Content Peer Tag⟩
 
 

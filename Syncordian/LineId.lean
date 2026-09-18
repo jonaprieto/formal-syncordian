@@ -43,7 +43,8 @@ instance instDecidableLTLineId
     [DecidableEq Peer]
     [DecidableLT Peer]
     (a b : LineId Peer)
-    : Decidable (a < b) := by
+    : Decidable (a < b)
+    := by
   cases a <;> cases b <;> unfold LT.lt instLTLineId LineId.lt <;> infer_instance
 
 end Syncordian
