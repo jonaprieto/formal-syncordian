@@ -21,7 +21,10 @@ theorem Lex.irrefl : ∀ (as : List Segment), ¬ Lex as as := by
     | tail _ h => exact ih h
 
 theorem Lex.trans
-    : ∀ {as bs cs : List Segment}, Lex as bs → Lex bs cs → Lex as cs := by
+    : ∀ {as bs cs : List Segment},
+      Lex as bs →
+      Lex bs cs →
+      Lex as cs := by
   intro as
   induction as with
   | nil =>
@@ -43,7 +46,10 @@ theorem Lex.trans
       | tail _ h' => exact Lex.tail _ (ih h h')
 
 theorem Lex.total
-    : ∀ (as bs : List Segment), Lex as bs ∨ as = bs ∨ Lex bs as := by
+    : ∀ (as bs : List Segment),
+      Lex as bs ∨
+      as = bs ∨
+      Lex bs as := by
   intro as
   induction as with
   | nil =>
@@ -75,7 +81,7 @@ def IsPrefix : List Segment → List Segment → Prop
 
 theorem Lex.append_right
     : ∀ (as : List Segment) (x : Segment) (xs : List Segment),
-        Lex as (as ++ x :: xs) := by
+      Lex as (as ++ x :: xs) := by
   intro as x xs
   induction as with
   | nil => exact Lex.nil _ _
@@ -83,7 +89,10 @@ theorem Lex.append_right
 
 theorem Lex.append_of_not_prefix
     : ∀ {as bs : List Segment},
-        Lex as bs → ¬ IsPrefix as bs → ∀ x, Lex (as ++ [x]) bs := by
+      Lex as bs →
+      ¬ IsPrefix as bs →
+      ∀ x,
+      Lex (as ++ [x]) bs := by
   intro as
   induction as with
   | nil => intro bs _ hnp _; exact absurd trivial hnp
@@ -98,7 +107,9 @@ theorem Lex.append_of_not_prefix
 
 theorem Lex.prefix_below
     : ∀ {as bs : List Segment},
-        IsPrefix as bs → Lex as bs → Lex as (belowL bs) := by
+      IsPrefix as bs →
+      Lex as bs →
+      Lex as (belowL bs) := by
   intro as
   induction as with
   | nil =>
@@ -126,14 +137,15 @@ theorem Lex.prefix_below
           exact Lex.tail a (ih hp' h)
 
 instance instDecidableIsPrefix
-    : (as bs : List Segment) → Decidable (IsPrefix as bs)
+    : (as bs : List Segment) →
+      Decidable (IsPrefix as bs)
   | [], _ => isTrue trivial
   | _ :: _, [] => isFalse not_false
   | _ :: as, _ :: bs => @instDecidableAnd _ _ inferInstance (instDecidableIsPrefix as bs)
 
 theorem lex_iff_compareList
     : ∀ (as bs : List Segment),
-        Lex as bs ↔ Path.compareList as bs = .lt := by
+      Lex as bs ↔ Path.compareList as bs = .lt := by
   intro as
   induction as with
   | nil =>
@@ -173,7 +185,8 @@ theorem lex_iff_compareList
 
 theorem belowL_lt
     : ∀ (s : Segment) (ts : List Segment),
-        0 < (lastSegOf s ts).peer → Lex (belowL (s :: ts)) (s :: ts) := by
+      0 < (lastSegOf s ts).peer →
+      Lex (belowL (s :: ts)) (s :: ts) := by
   intro s ts
   induction ts generalizing s with
   | nil =>
@@ -254,7 +267,8 @@ theorem PathId.lt_trans
 theorem PathId.lt_total
     (a b : PathId)
     (h : a ≠ b)
-    : PathId.lt a b ∨ PathId.lt b a := by
+    : PathId.lt a b ∨
+      PathId.lt b a := by
   cases a <;> cases b <;>
     first
       | exact absurd rfl h
@@ -299,7 +313,8 @@ theorem PathId.between_spec
     {a b : PathId}
     (h : PathId.lt a b)
     (hb : b.WellFormed)
-    : PathId.lt a (PathId.between a b) ∧ PathId.lt (PathId.between a b) b := by
+    : PathId.lt a (PathId.between a b) ∧
+      PathId.lt (PathId.between a b) b := by
   cases a with
   | supremum => exact absurd h (PathId.not_supremum_lt _)
   | infimum =>

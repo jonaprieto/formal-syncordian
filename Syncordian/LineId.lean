@@ -18,7 +18,9 @@ deriving DecidableEq, Repr
 variable [LT Peer]
 
 def LineId.lt
-    : LineId Peer → LineId Peer → Prop
+    : LineId Peer →
+      LineId Peer →
+      Prop
   | .bottom, .bottom => False
   | .bottom, .top => True
   | .bottom, .operation _ => True

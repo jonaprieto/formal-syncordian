@@ -22,7 +22,9 @@ theorem exists_middle
     [spec : PositionSpec α]
     {a b : α}
     (h : a < b)
-    : ∃ c, a < c ∧ c < b :=
+    : ∃ c,
+      a < c ∧
+      c < b :=
   spec.dense h
 
 end Syncordian

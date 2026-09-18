@@ -125,7 +125,9 @@ theorem storedSignature_unique
     (sameDocumentKey : left.keys.document = right.keys.document)
     (sameBottom : left.bottomSignature = right.bottomSignature)
     (sameTop : left.topSignature = right.topSignature)
-    : ∀ id, (doc.raw.line? id).isSome → left.storedSignature id = right.storedSignature id := by
+    : ∀ id,
+      (doc.raw.line? id).isSome →
+      left.storedSignature id = right.storedSignature id := by
   intro id
   induction id using doc.wellFormed.parentRanked.induction with
   | _ id ih =>
@@ -161,7 +163,8 @@ theorem storedSignature_unique
 def wireTag
     (mac : Key → WirePayload Position Content Peer Tag → Tag)
     (signatures : StoredSignatures Peer Key Tag)
-    : Operation Position Content Peer Tag → Tag
+    : Operation Position Content Peer Tag →
+      Tag
   | .insert id _ position left right supersedes content _ =>
       mac signatures.keys.insert
         (.insert
@@ -198,7 +201,8 @@ theorem target_eq_of_delete_wireTag_eq
     (equal :
       signatures.wireTag mac (.delete id a tagA) =
         signatures.wireTag mac (.delete id b tagB))
-    : signatures.storedSignature a = signatures.storedSignature b ∧ a = b := by
+    : signatures.storedSignature a = signatures.storedSignature b ∧
+      a = b := by
   have payload :
       (WirePayload.delete (signatures.storedSignature a) a id) =
         .delete (signatures.storedSignature b) b id :=
@@ -233,7 +237,8 @@ theorem admission_does_not_bind_writer
     (signatures : StoredSignatures Peer Key Tag)
     (operation : Operation Position Content Peer Tag)
     : ∃ message : Message Position Content Peer Tag,
-        signatures.ValidAdmissionTag mac message ∧ message.operation = operation :=
+      signatures.ValidAdmissionTag mac message ∧
+      message.operation = operation :=
   ⟨signatures.admittedMessage mac operation, rfl, rfl⟩
 
 def NoWireLeak

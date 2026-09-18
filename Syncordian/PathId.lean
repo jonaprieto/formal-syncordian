@@ -91,7 +91,8 @@ theorem lastSegOf_append_least
 theorem belowL_cons
     (s : Segment)
     (ts : List Segment)
-    : ∃ (y : Segment) (ys : List Segment), belowL (s :: ts) = y :: ys := by
+    : ∃ (y : Segment) (ys : List Segment),
+      belowL (s :: ts) = y :: ys := by
   cases ts with
   | nil => exact ⟨_, _, rfl⟩
   | cons t ts => exact ⟨_, _, rfl⟩

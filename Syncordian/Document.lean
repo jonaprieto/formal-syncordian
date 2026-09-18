@@ -36,7 +36,8 @@ def RawDocument.normalLine?
 def RawDocument.line?
     [DecidableEq Peer]
     (doc : RawDocument Position Content Peer)
-    : LineId Peer → Option (Line Position Content Peer)
+    : LineId Peer →
+      Option (Line Position Content Peer)
   | .bottom       => some .bottom
   | .top          => some .top
   | .operation id => (doc.normalLine? id).map .normal

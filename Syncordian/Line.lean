@@ -89,40 +89,47 @@ inductive Line where
 variable {Position Content Peer}
 
 abbrev Line.id
-    : (line : Line Position Content Peer) →  LineId Peer
+    : (line : Line Position Content Peer) →
+      LineId Peer
   | .bottom  => .bottom
   | .top     => .top
   | .normal line => .operation line.fixed.id
 
 abbrev Line.position
     [spec : PositionSpec Position]
-    : (line : Line Position Content Peer) → Position
+    : (line : Line Position Content Peer) →
+      Position
   | .bottom  => spec.bottom
   | .top     => spec.top
   | .normal line => line.fixed.position
 
 def Line.parents?
-  : Line Position Content Peer → Option (LineId Peer × LineId Peer)
+  : Line Position Content Peer →
+    Option (LineId Peer × LineId Peer)
   | .bottom | .top => none
   | .normal line   => some (line.parentLeft, line.parentRight)
 
 abbrev Line.status
-  : (line : Line Position Content Peer) → Status
+  : (line : Line Position Content Peer) →
+    Status
   | .bottom | .top  => .settled
   | .normal line  => line.state.status
 
 abbrev Line.isBoundary
-    : Line Position Content Peer → Prop
+    : Line Position Content Peer →
+      Prop
   | .bottom | .top  => True
   | .normal _       => False
 
 abbrev Line.isBottom
-    : (line : Line Position Content Peer) →  Prop
+    : (line : Line Position Content Peer) →
+      Prop
   | .bottom => True
   | _       => False
 
 abbrev Line.isTopSentinel
-    : (line : Line Position Content Peer) →  Prop
+    : (line : Line Position Content Peer) →
+      Prop
   | .top => True
   | _ => False
 
@@ -155,12 +162,14 @@ instance instDecidableLTLine
 def Line.Sorted
     [PositionSpec Position]
     [LT Peer]
-    : List (Line Position Content Peer) → Prop
+    : List (Line Position Content Peer) →
+      Prop
   | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
   | _ => True
 
 def Line.isVisible
-    : Line Position Content Peer → Prop
+    : Line Position Content Peer →
+      Prop
   | .bottom | .top => False
   | .normal line   => line.state.status ≠ .tombstone
 

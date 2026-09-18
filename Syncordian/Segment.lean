@@ -56,7 +56,9 @@ theorem Segment.lt_trans
 
 theorem Segment.lt_total
     (a b : Segment)
-    : a < b ∨ a = b ∨ b < a := by
+    : a < b ∨
+      a = b ∨
+      b < a := by
   obtain ⟨d1, p1⟩ := a
   obtain ⟨d2, p2⟩ := b
   simp [Segment.lt_def]

@@ -14,7 +14,8 @@ def Path.toList
 
 def Path.compareList
     : List Segment →
-      List Segment → Ordering
+      List Segment →
+      Ordering
   | [], [] => .eq
   | [], _ :: _ => .lt
   | _ :: _, [] => .gt
