@@ -21,7 +21,8 @@ instance : LT Segment where
 
 theorem Segment.lt_def
     {a b : Segment}
-    : a < b ↔ lt_seg a b :=
+    : a < b ↔
+      lt_seg a b :=
   Iff.rfl
 
 instance (a b : Segment) : Decidable (a < b) :=
@@ -31,7 +32,8 @@ instance (a b : Segment) : Decidable (a < b) :=
 
 theorem Segment.compare_eq_eq
     {a b : Segment}
-    : compare a b = .eq ↔ a = b := by
+    : compare a b = .eq ↔
+      a = b := by
   obtain ⟨d1, p1⟩ := a
   obtain ⟨d2, p2⟩ := b
   simp [compare, compareOfLessAndEq]
@@ -40,7 +42,8 @@ theorem Segment.compare_eq_eq
 -- The only place the order and the executable comparator meet.
 theorem Segment.compare_eq_lt
     {a b : Segment}
-    : compare a b = .lt ↔ a < b := by
+    : compare a b = .lt ↔
+      a < b := by
   simp [Segment.lt_def, compare, compareOfLessAndEq, Ordering.then]
   grind
 

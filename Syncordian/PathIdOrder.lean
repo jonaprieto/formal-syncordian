@@ -151,7 +151,8 @@ instance instDecidableIsPrefix
 
 theorem lex_iff_compareList
     : ∀ (as bs : List Segment),
-      Lex as bs ↔ Path.compareList as bs = .lt := by
+      Lex as bs ↔
+      Path.compareList as bs = .lt := by
   intro as
   induction as with
   | nil =>
@@ -223,7 +224,8 @@ instance instDecidablePathIdLt (a b : PathId) : Decidable (PathId.lt a b) := by
 
 theorem PathId.lt_path
     {p q : Path}
-    : PathId.lt (.path p) (.path q) ↔ Lex p.toList q.toList :=
+    : PathId.lt (.path p) (.path q) ↔
+      Lex p.toList q.toList :=
   (lex_iff_compareList _ _).symm
 
 theorem PathId.not_lt_infimum (x : PathId) : ¬ PathId.lt x .infimum := by
