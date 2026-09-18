@@ -1,6 +1,8 @@
 namespace Syncordian
 
-class PositionSpec (α : Type) where
+class PositionSpec
+    (α : Type)
+    where
   ltPos     : α → α → Prop
   bottom    : α
   top       : α
