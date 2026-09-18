@@ -104,14 +104,14 @@ abbrev Line.position
   | .normal line => line.fixed.position
 
 def Line.parents?
-  : Line Position Content Peer →
-    Option (LineId Peer × LineId Peer)
+    : Line Position Content Peer →
+      Option (LineId Peer × LineId Peer)
   | .bottom | .top => none
   | .normal line   => some (line.parentLeft, line.parentRight)
 
 abbrev Line.status
-  : (line : Line Position Content Peer) →
-    Status
+    : (line : Line Position Content Peer) →
+      Status
   | .bottom | .top  => .settled
   | .normal line  => line.state.status
 
