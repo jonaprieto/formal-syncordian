@@ -4,7 +4,10 @@ import Syncordian.Segment
 
 namespace Syncordian
 
-inductive Lex : List Segment → List Segment → Prop
+inductive Lex
+    : List Segment →
+      List Segment →
+      Prop
   | nil (b : Segment) (bs : List Segment) : Lex [] (b :: bs)
   | head {a b : Segment}  (h : a < b)  (as bs : List Segment) :
       Lex (a :: as) (b :: bs)
@@ -74,7 +77,10 @@ theorem Lex.total
 theorem Lex.not_nil_right {as : List Segment} : ¬ Lex as [] := by
   intro h; cases h
 
-def IsPrefix : List Segment → List Segment → Prop
+def IsPrefix
+    : List Segment →
+      List Segment →
+      Prop
   | [], _ => True
   | _ :: _, [] => False
   | a :: as, b :: bs => a = b ∧ IsPrefix as bs
@@ -281,7 +287,10 @@ theorem PathId.lt_total
          · exact Or.inr (PathId.lt_path.mpr hr))
 
 -- The allocator behind `dense`: a position strictly between `a` and `b`.
-def PathId.between : PathId → PathId → PathId
+def PathId.between
+    : PathId →
+      PathId →
+      PathId
   | .infimum, .path q   => .path q.below
   | .infimum, .supremum => .path { head := Segment.least, tail := [] }
   | .path p, .supremum  => .path p.ext

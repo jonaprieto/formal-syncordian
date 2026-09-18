@@ -40,7 +40,10 @@ theorem PathId.path_lt_supremum
 
 #guard PathId.infimum ≤ PathId.supremum
 
-def lastSegOf : Segment → List Segment → Segment
+def lastSegOf
+    : Segment →
+      List Segment →
+      Segment
   | s, [] => s
   | _, t :: ts => lastSegOf t ts
 
@@ -48,13 +51,17 @@ def Path.lastSeg (p : Path) : Segment := lastSegOf p.head p.tail
 
 def Path.WellFormed (p : Path) : Prop := 0 < p.lastSeg.peer
 
-def PathId.WellFormed : PathId → Prop
+def PathId.WellFormed
+    : PathId →
+      Prop
   | .path p => p.WellFormed
   | _ => True
 
 def Segment.least : Segment := { digit := 0, peer := 1 }
 
-def belowL : List Segment → List Segment
+def belowL
+    : List Segment →
+      List Segment
   | [] => []
   | [s] => [{ s with peer := s.peer - 1 }, Segment.least]
   | s :: ts => s :: belowL ts

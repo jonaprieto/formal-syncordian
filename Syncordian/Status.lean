@@ -10,7 +10,9 @@ inductive Status where
 deriving DecidableEq, Repr, Ord
 
 -- Embedding of the chain into Nat, so the order below is just `≤` on Nat.
-def Status.rank : Status → Nat
+def Status.rank
+    : Status →
+      Nat
   | .aura => 0
   | .settled => 1
   | .tombstone => 2
