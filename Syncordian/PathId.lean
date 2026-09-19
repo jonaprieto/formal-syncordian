@@ -40,7 +40,8 @@ theorem PathId.path_lt_supremum
 #guard
   (PathId.path { head := { digit := 3, peer := 1 }, tail := [] })
     < PathId.path { head := { digit := 3, peer := 1 },
-                    tail := [{ digit := 7, peer := 2 }] }
+                    tail := [{ digit := 7, peer := 2 }]
+                  }
 
 #guard PathId.infimum ≤ PathId.supremum
 

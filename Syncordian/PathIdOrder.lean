@@ -393,7 +393,8 @@ theorem PathId.between_spec
 #guard
   let a : PathId := .path { head := { digit := 3, peer := 1 }, tail := [] }
   let b : PathId := .path { head := { digit := 3, peer := 1 },
-                            tail := [{ digit := 7, peer := 2 }] }
+                            tail := [{ digit := 7, peer := 2 }]
+                          }
   decide (PathId.lt a (PathId.between a b)) && decide (PathId.lt (PathId.between a b) b)
 
 instance

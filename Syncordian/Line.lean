@@ -147,7 +147,7 @@ def Line.lt
     : Prop
     :=
   a.position < b.position ∨
-    (a.position = b.position ∧ a.id < b.id)
+  (a.position = b.position ∧ a.id < b.id)
 
 instance instLTLine
     [PositionSpec Position]

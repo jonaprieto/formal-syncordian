@@ -98,10 +98,10 @@ def Consistent
     : Prop
     :=
   signatures.storedSignature .bottom = signatures.bottomSignature ∧
-    signatures.storedSignature .top = signatures.topSignature ∧
-      ∀ line ∈ doc.raw.normalLines,
-        signatures.storedSignature (.operation line.id) =
-          mac signatures.keys.document (signatures.storedPayload line)
+  signatures.storedSignature .top = signatures.topSignature ∧
+  ∀ line ∈ doc.raw.normalLines,
+    signatures.storedSignature (.operation line.id) =
+      mac signatures.keys.document (signatures.storedPayload line)
 
 theorem storedPayload_congr
     {left right : StoredSignatures Peer Key Tag}
@@ -178,7 +178,8 @@ def wireTag
             rightSignature := signatures.storedSignature right
             right          := right
             id             := id
-            position       := position }
+            position       := position
+          }
           (supersedes.map signatures.storedSignature)
           supersedes)
   | .delete id target _ =>
@@ -239,7 +240,8 @@ def admittedMessage
     : Message Position Content Peer Tag
     :=
   { operation     := operation
-    admissionTag  := signatures.admissionTag mac operation }
+    admissionTag  := signatures.admissionTag mac operation
+  }
 
 theorem admission_does_not_bind_writer
     (mac : Key → Operation Position Content Peer Tag → Tag)
@@ -258,7 +260,7 @@ def NoWireLeak
     :=
   ∀ message ∈ trace, ∀ id : LineId Peer,
     message.admissionTag ≠ signatures.storedSignature id ∧
-      message.operation.wireTag ≠ signatures.storedSignature id
+    message.operation.wireTag ≠ signatures.storedSignature id
 
 theorem NoWireLeak.sublist
     {signatures : StoredSignatures Peer Key Tag}
