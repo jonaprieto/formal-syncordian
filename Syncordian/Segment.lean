@@ -5,7 +5,9 @@ structure Segment where
   peer  : Nat
 deriving DecidableEq, Repr
 
-instance : Ord Segment where
+instance
+    : Ord Segment
+    where
   compare a b :=
     (compare a.digit b.digit).then
       (compare a.peer b.peer)
@@ -17,7 +19,9 @@ abbrev lt_seg
   a.digit < b.digit ∨ (a.digit = b.digit ∧ a.peer < b.peer)
 
 -- Segments order by digit, then by peer.
-instance : LT Segment where
+instance
+    : LT Segment
+    where
   lt a b := lt_seg a b
 
 theorem Segment.lt_def
@@ -27,7 +31,10 @@ theorem Segment.lt_def
     :=
   Iff.rfl
 
-instance (a b : Segment) : Decidable (a < b) :=
+instance
+    (a b : Segment)
+    : Decidable (a < b)
+    :=
   decidable_of_iff _ Segment.lt_def.symm
 
 #guard ({ digit := 1, peer := 0 } : Segment) < { digit := 1, peer := 2 }
@@ -51,7 +58,10 @@ theorem Segment.compare_eq_lt
   simp [Segment.lt_def, compare, compareOfLessAndEq, Ordering.then]
   grind
 
-theorem Segment.lt_irrefl (a : Segment) : ¬ a < a := by
+theorem Segment.lt_irrefl
+    (a : Segment)
+    : ¬ a < a
+    := by
   grind [Segment.lt_def]
 
 theorem Segment.lt_trans

@@ -25,7 +25,9 @@ def Path.compareList
       | .eq => Path.compareList as bs
       | result => result
 
-instance : Ord Path where
+instance
+    : Ord Path
+    where
   compare a b := Path.compareList a.toList b.toList
 
 end Syncordian

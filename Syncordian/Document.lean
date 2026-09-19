@@ -24,7 +24,9 @@ def RawDocument.empty
     :=
   { normalLines := [] }
 
-instance : Inhabited (RawDocument Position Content Peer) :=
+instance
+    : Inhabited (RawDocument Position Content Peer)
+    :=
   { default := RawDocument.empty }
 
 def RawDocument.normalLine?

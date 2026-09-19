@@ -9,7 +9,9 @@ inductive PathId where
   | supremum
 deriving DecidableEq, Repr
 
-instance : Ord PathId where
+instance
+    : Ord PathId
+    where
   compare
     | .infimum, .infimum => .eq
     | .infimum, _ => .lt
@@ -68,14 +70,20 @@ def belowL
   | [s] => [{ s with peer := s.peer - 1 }, Segment.least]
   | s :: ts => s :: belowL ts
 
-def Path.below (p : Path) : Path :=
+def Path.below
+    (p : Path)
+    : Path
+    :=
   match p.tail with
   | [] => { head := { p.head with peer := p.head.peer - 1 }, tail := [Segment.least] }
   | t :: ts => { head := p.head, tail := belowL (t :: ts) }
 
 def Path.ext (p : Path) : Path := { head := p.head, tail := p.tail ++ [Segment.least] }
 
-theorem Path.below_toList (p : Path) : p.below.toList = belowL p.toList := by
+theorem Path.below_toList
+    (p : Path)
+    : p.below.toList = belowL p.toList
+    := by
   obtain ⟨hd, tl⟩ := p
   cases tl <;> rfl
 
@@ -109,7 +117,10 @@ theorem belowL_cons
   | nil => exact ⟨_, _, rfl⟩
   | cons t ts => exact ⟨_, _, rfl⟩
 
-theorem Path.below_wellFormed (p : Path) : p.below.WellFormed := by
+theorem Path.below_wellFormed
+    (p : Path)
+    : p.below.WellFormed
+    := by
   obtain ⟨hd, tl⟩ := p
   cases tl with
   | nil => exact Nat.one_pos
@@ -118,12 +129,19 @@ theorem Path.below_wellFormed (p : Path) : p.below.WellFormed := by
     rw [lastSegOf_belowL]
     exact Nat.one_pos
 
-theorem Path.ext_wellFormed (p : Path) : p.ext.WellFormed := by
+theorem Path.ext_wellFormed
+    (p : Path)
+    : p.ext.WellFormed
+    := by
   show 0 < (lastSegOf p.head (p.tail ++ [Segment.least])).peer
   rw [lastSegOf_append_least]
   exact Nat.one_pos
 
-theorem Path.toList_inj {p q : Path} (h : p.toList = q.toList) : p = q := by
+theorem Path.toList_inj
+    {p q : Path}
+    (h : p.toList = q.toList)
+    : p = q
+    := by
   obtain ⟨ph, pt⟩ := p
   obtain ⟨qh, qt⟩ := q
   simp [Path.toList] at h

@@ -14,7 +14,10 @@ inductive Lex
   | tail (a : Segment) {as bs : List Segment} (h : Lex as bs) :
       Lex (a :: as) (a :: bs)
 
-theorem Lex.irrefl : ∀ (as : List Segment), ¬ Lex as as := by
+theorem Lex.irrefl
+    : ∀ (as : List Segment),
+      ¬ Lex as as
+    := by
   intro as h
   induction as with
   | nil => cases h
@@ -76,7 +79,10 @@ theorem Lex.total
         · exact Or.inr (Or.inr (Lex.tail _ h'))
       · exact Or.inr (Or.inr (Lex.head h _ _))
 
-theorem Lex.not_nil_right {as : List Segment} : ¬ Lex as [] := by
+theorem Lex.not_nil_right
+    {as : List Segment}
+    : ¬ Lex as []
+    := by
   intro h; cases h
 
 def IsPrefix
@@ -221,13 +227,19 @@ theorem Path.below_lt
   rw [Path.below_toList]
   exact belowL_lt p.head p.tail hp
 
-theorem Path.lt_ext (p : Path) : Lex p.toList p.ext.toList := by
+theorem Path.lt_ext
+    (p : Path)
+    : Lex p.toList p.ext.toList
+    := by
   show Lex (p.head :: p.tail) (p.head :: (p.tail ++ [Segment.least]))
   exact Lex.tail p.head (Lex.append_right p.tail Segment.least [])
 
 def PathId.lt (a b : PathId) : Prop := compare a b = .lt
 
-instance instDecidablePathIdLt (a b : PathId) : Decidable (PathId.lt a b) := by
+instance instDecidablePathIdLt
+    (a b : PathId)
+    : Decidable (PathId.lt a b)
+    := by
   unfold PathId.lt; infer_instance
 
 theorem PathId.lt_path
@@ -237,10 +249,16 @@ theorem PathId.lt_path
     :=
   (lex_iff_compareList _ _).symm
 
-theorem PathId.not_lt_infimum (x : PathId) : ¬ PathId.lt x .infimum := by
+theorem PathId.not_lt_infimum
+    (x : PathId)
+    : ¬ PathId.lt x .infimum
+    := by
   cases x <;> (intro h; cases h)
 
-theorem PathId.not_supremum_lt (x : PathId) : ¬ PathId.lt .supremum x := by
+theorem PathId.not_supremum_lt
+    (x : PathId)
+    : ¬ PathId.lt .supremum x
+    := by
   cases x <;> (intro h; cases h)
 
 theorem PathId.infimum_lt
@@ -263,7 +281,10 @@ theorem PathId.lt_supremum
   | infimum => rfl
   | path _ => rfl
 
-theorem PathId.lt_irrefl (x : PathId) : ¬ PathId.lt x x := by
+theorem PathId.lt_irrefl
+    (x : PathId)
+    : ¬ PathId.lt x x
+    := by
   cases x with
   | infimum => intro h; cases h
   | supremum => intro h; cases h
@@ -375,7 +396,9 @@ theorem PathId.between_spec
                             tail := [{ digit := 7, peer := 2 }] }
   decide (PathId.lt a (PathId.between a b)) && decide (PathId.lt (PathId.between a b) b)
 
-instance : PositionSpec { x : PathId // x.WellFormed } where
+instance
+    : PositionSpec { x : PathId // x.WellFormed }
+    where
   ltPos a b     := PathId.lt a.val b.val
   bottom        := ⟨.infimum, trivial⟩
   top           := ⟨.supremum, trivial⟩
