@@ -9,12 +9,14 @@ deriving DecidableEq, Repr
 
 def Path.toList
     (p : Path)
-    : List Segment :=
+    : List Segment
+    :=
   p.head :: p.tail
 
 def Path.compareList
     : List Segment →
-      List Segment → Ordering
+      List Segment →
+      Ordering
   | [], [] => .eq
   | [], _ :: _ => .lt
   | _ :: _, [] => .gt
@@ -23,7 +25,9 @@ def Path.compareList
       | .eq => Path.compareList as bs
       | result => result
 
-instance : Ord Path where
+instance
+    : Ord Path
+    where
   compare a b := Path.compareList a.toList b.toList
 
 end Syncordian

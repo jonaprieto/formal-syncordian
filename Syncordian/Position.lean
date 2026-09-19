@@ -1,6 +1,8 @@
 namespace Syncordian
 
-class PositionSpec (α : Type) where
+class PositionSpec
+    (α : Type)
+    where
   ltPos     : α → α → Prop
   bottom    : α
   top       : α
@@ -22,7 +24,10 @@ theorem exists_middle
     [spec : PositionSpec α]
     {a b : α}
     (h : a < b)
-    : ∃ c, a < c ∧ c < b :=
+    : ∃ c,
+      a < c ∧
+      c < b
+    :=
   spec.dense h
 
 end Syncordian

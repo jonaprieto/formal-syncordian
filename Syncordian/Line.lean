@@ -44,39 +44,46 @@ structure NormalLine
 
 abbrev NormalLine.id
     (line : NormalLine Position Content Peer)
-    : OpId Peer :=
+    : OpId Peer
+    :=
   line.fixed.id
 
 abbrev NormalLine.position
     (line : NormalLine Position Content Peer)
-    : Position :=
+    : Position
+    :=
   line.fixed.position
 
 abbrev NormalLine.parentLeft
     (line : NormalLine Position Content Peer)
-    : LineId Peer :=
+    : LineId Peer
+    :=
   line.fixed.parentLeft
 
 abbrev NormalLine.parentRight
     (line : NormalLine Position Content Peer)
-    : LineId Peer :=
+    : LineId Peer
+    :=
   line.fixed.parentRight
 
 abbrev NormalLine.status
     (line : NormalLine Position Content Peer)
-    : Status :=
+    : Status
+    :=
   line.state.status
 
 abbrev NormalLine.author
     (line : NormalLine Position Content Peer)
-    : Peer :=
+    : Peer
+    :=
   line.id.writer
 
 def NormalLine.setStatus
     (line : NormalLine Position Content Peer)
     (next : Status)
     (_ : line.state.status.canBecome next)
-    : NormalLine Position Content Peer :=
+    : NormalLine Position Content Peer
+    :=
   { line with state := { line.state with status := next } }
 
 end NormalLine
@@ -89,40 +96,47 @@ inductive Line where
 variable {Position Content Peer}
 
 abbrev Line.id
-    : (line : Line Position Content Peer) →  LineId Peer
+    : (line : Line Position Content Peer) →
+      LineId Peer
   | .bottom  => .bottom
   | .top     => .top
   | .normal line => .operation line.fixed.id
 
 abbrev Line.position
     [spec : PositionSpec Position]
-    : (line : Line Position Content Peer) → Position
+    : (line : Line Position Content Peer) →
+      Position
   | .bottom  => spec.bottom
   | .top     => spec.top
   | .normal line => line.fixed.position
 
 def Line.parents?
-  : Line Position Content Peer → Option (LineId Peer × LineId Peer)
+    : Line Position Content Peer →
+      Option (LineId Peer × LineId Peer)
   | .bottom | .top => none
   | .normal line   => some (line.parentLeft, line.parentRight)
 
 abbrev Line.status
-  : (line : Line Position Content Peer) → Status
+    : (line : Line Position Content Peer) →
+      Status
   | .bottom | .top  => .settled
   | .normal line  => line.state.status
 
 abbrev Line.isBoundary
-    : Line Position Content Peer → Prop
+    : Line Position Content Peer →
+      Prop
   | .bottom | .top  => True
   | .normal _       => False
 
 abbrev Line.isBottom
-    : (line : Line Position Content Peer) →  Prop
+    : (line : Line Position Content Peer) →
+      Prop
   | .bottom => True
   | _       => False
 
 abbrev Line.isTopSentinel
-    : (line : Line Position Content Peer) →  Prop
+    : (line : Line Position Content Peer) →
+      Prop
   | .top => True
   | _ => False
 
@@ -130,7 +144,8 @@ def Line.lt
     [PositionSpec Position]
     [LT Peer]
     (a b : Line Position Content Peer)
-    : Prop :=
+    : Prop
+    :=
   a.position < b.position ∨
     (a.position = b.position ∧ a.id < b.id)
 
@@ -149,24 +164,28 @@ instance instDecidableLTLine
     [DecidableEq Peer]
     [DecidableLT Peer]
     (a b : Line Position Content Peer)
-    : Decidable (a < b) :=
+    : Decidable (a < b)
+    :=
   inferInstanceAs (Decidable (_ ∨ _))
 
 def Line.Sorted
     [PositionSpec Position]
     [LT Peer]
-    : List (Line Position Content Peer) → Prop
+    : List (Line Position Content Peer) →
+      Prop
   | a :: b :: rest => a < b ∧ Line.Sorted (b :: rest)
   | _ => True
 
 def Line.isVisible
-    : Line Position Content Peer → Prop
+    : Line Position Content Peer →
+      Prop
   | .bottom | .top => False
   | .normal line   => line.state.status ≠ .tombstone
 
 instance instDecidableLineVisible
     (line : Line Position Content Peer)
-    : Decidable line.isVisible :=
+    : Decidable line.isVisible
+    :=
   match line with
   | .bottom | .top => isFalse id
   | .normal l      => inferInstanceAs (Decidable (l.state.status ≠ .tombstone))

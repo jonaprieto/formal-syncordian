@@ -41,13 +41,15 @@ deriving DecidableEq, Repr
 variable {Position Content Peer Tag}
 
 def Operation.wireTag
-    : Operation Position Content Peer Tag → Tag
+    : Operation Position Content Peer Tag →
+      Tag
   | .insert _ _ _ _ _ _ _ tag   => tag
   | .delete _ _ tag             => tag
   | .acknowledge _ _ tag        => tag
 
 def Operation.author
-    : Operation Position Content Peer Tag → Peer
+    : Operation Position Content Peer Tag →
+      Peer
   | .insert id _ _ _ _ _ _ _  => id.writer   -- who creates the line
   | .delete id _ _             => id.writer  -- who deletes the line
   | .acknowledge _ peer _        => peer     -- who confirmed the reception

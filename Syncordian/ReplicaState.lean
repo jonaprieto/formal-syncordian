@@ -30,7 +30,9 @@ structure ReplicaState
   aliases    : LineId Peer → Option (LineId Peer)
 
 
-def initialState : ReplicaState Position Content Peer Tag :=
+def initialState
+    : ReplicaState Position Content Peer Tag
+    :=
   {
     document   := Document.empty
     progress   := fun _ => 0
@@ -40,7 +42,8 @@ def initialState : ReplicaState Position Content Peer Tag :=
   }
 
 instance
-    : Inhabited (ReplicaState Position Content Peer Tag) :=
+    : Inhabited (ReplicaState Position Content Peer Tag)
+    :=
   ⟨initialState Position Content Peer Tag⟩
 
 

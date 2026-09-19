@@ -12,7 +12,8 @@ variable
 def OccursBefore
     (l : List E)
     (x y : E)
-    : Prop :=
+    : Prop
+    :=
   ∃ xs ys zs, xs ++ [x] ++ ys ++ [y] ++ zs = l
 
 variable
@@ -45,7 +46,8 @@ def before
     (S : System E)
     (i : Nat)
     (x y : E)
-    : Prop :=
+    : Prop
+    :=
   OccursBefore (S.history i) x y
 
 end System
@@ -123,7 +125,8 @@ theorem broadcaster_unique
     {m : Msg}
     (hi : Event.broadcast m ∈ N.history i)
     (hj : Event.broadcast m ∈ N.history j)
-    : i = j :=
+    : i = j
+    :=
   (N.msgIdUnique hi hj rfl).left
 
 end Network

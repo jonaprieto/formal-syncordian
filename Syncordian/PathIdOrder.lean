@@ -4,14 +4,20 @@ import Syncordian.Segment
 
 namespace Syncordian
 
-inductive Lex : List Segment → List Segment → Prop
+inductive Lex
+    : List Segment →
+      List Segment →
+      Prop
   | nil (b : Segment) (bs : List Segment) : Lex [] (b :: bs)
   | head {a b : Segment}  (h : a < b)  (as bs : List Segment) :
       Lex (a :: as) (b :: bs)
   | tail (a : Segment) {as bs : List Segment} (h : Lex as bs) :
       Lex (a :: as) (a :: bs)
 
-theorem Lex.irrefl : ∀ (as : List Segment), ¬ Lex as as := by
+theorem Lex.irrefl
+    : ∀ (as : List Segment),
+      ¬ Lex as as
+    := by
   intro as h
   induction as with
   | nil => cases h
@@ -21,7 +27,11 @@ theorem Lex.irrefl : ∀ (as : List Segment), ¬ Lex as as := by
     | tail _ h => exact ih h
 
 theorem Lex.trans
-    : ∀ {as bs cs : List Segment}, Lex as bs → Lex bs cs → Lex as cs := by
+    : ∀ {as bs cs : List Segment},
+      Lex as bs →
+      Lex bs cs →
+      Lex as cs
+    := by
   intro as
   induction as with
   | nil =>
@@ -43,7 +53,11 @@ theorem Lex.trans
       | tail _ h' => exact Lex.tail _ (ih h h')
 
 theorem Lex.total
-    : ∀ (as bs : List Segment), Lex as bs ∨ as = bs ∨ Lex bs as := by
+    : ∀ (as bs : List Segment),
+      Lex as bs ∨
+      as = bs ∨
+      Lex bs as
+    := by
   intro as
   induction as with
   | nil =>
@@ -65,17 +79,24 @@ theorem Lex.total
         · exact Or.inr (Or.inr (Lex.tail _ h'))
       · exact Or.inr (Or.inr (Lex.head h _ _))
 
-theorem Lex.not_nil_right {as : List Segment} : ¬ Lex as [] := by
+theorem Lex.not_nil_right
+    {as : List Segment}
+    : ¬ Lex as []
+    := by
   intro h; cases h
 
-def IsPrefix : List Segment → List Segment → Prop
+def IsPrefix
+    : List Segment →
+      List Segment →
+      Prop
   | [], _ => True
   | _ :: _, [] => False
   | a :: as, b :: bs => a = b ∧ IsPrefix as bs
 
 theorem Lex.append_right
     : ∀ (as : List Segment) (x : Segment) (xs : List Segment),
-        Lex as (as ++ x :: xs) := by
+      Lex as (as ++ x :: xs)
+    := by
   intro as x xs
   induction as with
   | nil => exact Lex.nil _ _
@@ -83,7 +104,11 @@ theorem Lex.append_right
 
 theorem Lex.append_of_not_prefix
     : ∀ {as bs : List Segment},
-        Lex as bs → ¬ IsPrefix as bs → ∀ x, Lex (as ++ [x]) bs := by
+      Lex as bs →
+      ¬ IsPrefix as bs →
+      ∀ x,
+      Lex (as ++ [x]) bs
+    := by
   intro as
   induction as with
   | nil => intro bs _ hnp _; exact absurd trivial hnp
@@ -98,7 +123,10 @@ theorem Lex.append_of_not_prefix
 
 theorem Lex.prefix_below
     : ∀ {as bs : List Segment},
-        IsPrefix as bs → Lex as bs → Lex as (belowL bs) := by
+      IsPrefix as bs →
+      Lex as bs →
+      Lex as (belowL bs)
+    := by
   intro as
   induction as with
   | nil =>
@@ -126,14 +154,17 @@ theorem Lex.prefix_below
           exact Lex.tail a (ih hp' h)
 
 instance instDecidableIsPrefix
-    : (as bs : List Segment) → Decidable (IsPrefix as bs)
+    : (as bs : List Segment) →
+      Decidable (IsPrefix as bs)
   | [], _ => isTrue trivial
   | _ :: _, [] => isFalse not_false
   | _ :: as, _ :: bs => @instDecidableAnd _ _ inferInstance (instDecidableIsPrefix as bs)
 
 theorem lex_iff_compareList
     : ∀ (as bs : List Segment),
-        Lex as bs ↔ Path.compareList as bs = .lt := by
+      Lex as bs ↔
+      Path.compareList as bs = .lt
+    := by
   intro as
   induction as with
   | nil =>
@@ -173,7 +204,9 @@ theorem lex_iff_compareList
 
 theorem belowL_lt
     : ∀ (s : Segment) (ts : List Segment),
-        0 < (lastSegOf s ts).peer → Lex (belowL (s :: ts)) (s :: ts) := by
+      0 < (lastSegOf s ts).peer →
+      Lex (belowL (s :: ts)) (s :: ts)
+    := by
   intro s ts
   induction ts generalizing s with
   | nil =>
@@ -189,34 +222,50 @@ theorem belowL_lt
 theorem Path.below_lt
     (p : Path)
     (hp : p.WellFormed)
-    : Lex p.below.toList p.toList := by
+    : Lex p.below.toList p.toList
+    := by
   rw [Path.below_toList]
   exact belowL_lt p.head p.tail hp
 
-theorem Path.lt_ext (p : Path) : Lex p.toList p.ext.toList := by
+theorem Path.lt_ext
+    (p : Path)
+    : Lex p.toList p.ext.toList
+    := by
   show Lex (p.head :: p.tail) (p.head :: (p.tail ++ [Segment.least]))
   exact Lex.tail p.head (Lex.append_right p.tail Segment.least [])
 
 def PathId.lt (a b : PathId) : Prop := compare a b = .lt
 
-instance instDecidablePathIdLt (a b : PathId) : Decidable (PathId.lt a b) := by
+instance instDecidablePathIdLt
+    (a b : PathId)
+    : Decidable (PathId.lt a b)
+    := by
   unfold PathId.lt; infer_instance
 
 theorem PathId.lt_path
     {p q : Path}
-    : PathId.lt (.path p) (.path q) ↔ Lex p.toList q.toList :=
+    : PathId.lt (.path p) (.path q) ↔
+      Lex p.toList q.toList
+    :=
   (lex_iff_compareList _ _).symm
 
-theorem PathId.not_lt_infimum (x : PathId) : ¬ PathId.lt x .infimum := by
+theorem PathId.not_lt_infimum
+    (x : PathId)
+    : ¬ PathId.lt x .infimum
+    := by
   cases x <;> (intro h; cases h)
 
-theorem PathId.not_supremum_lt (x : PathId) : ¬ PathId.lt .supremum x := by
+theorem PathId.not_supremum_lt
+    (x : PathId)
+    : ¬ PathId.lt .supremum x
+    := by
   cases x <;> (intro h; cases h)
 
 theorem PathId.infimum_lt
     {x : PathId}
     (h : x ≠ .infimum)
-    : PathId.lt .infimum x := by
+    : PathId.lt .infimum x
+    := by
   cases x with
   | infimum => exact absurd rfl h
   | path _ => rfl
@@ -225,13 +274,17 @@ theorem PathId.infimum_lt
 theorem PathId.lt_supremum
     {x : PathId}
     (h : x ≠ .supremum)
-    : PathId.lt x .supremum := by
+    : PathId.lt x .supremum
+    := by
   cases x with
   | supremum => exact absurd rfl h
   | infimum => rfl
   | path _ => rfl
 
-theorem PathId.lt_irrefl (x : PathId) : ¬ PathId.lt x x := by
+theorem PathId.lt_irrefl
+    (x : PathId)
+    : ¬ PathId.lt x x
+    := by
   cases x with
   | infimum => intro h; cases h
   | supremum => intro h; cases h
@@ -241,7 +294,8 @@ theorem PathId.lt_trans
     {a b c : PathId}
     (hab : PathId.lt a b)
     (hbc : PathId.lt b c)
-    : PathId.lt a c := by
+    : PathId.lt a c
+    := by
   cases a <;> cases b <;> cases c <;>
     first
       | exact absurd hab (PathId.not_supremum_lt _)
@@ -254,7 +308,9 @@ theorem PathId.lt_trans
 theorem PathId.lt_total
     (a b : PathId)
     (h : a ≠ b)
-    : PathId.lt a b ∨ PathId.lt b a := by
+    : PathId.lt a b ∨
+      PathId.lt b a
+    := by
   cases a <;> cases b <;>
     first
       | exact absurd rfl h
@@ -267,7 +323,10 @@ theorem PathId.lt_total
          · exact Or.inr (PathId.lt_path.mpr hr))
 
 -- The allocator behind `dense`: a position strictly between `a` and `b`.
-def PathId.between : PathId → PathId → PathId
+def PathId.between
+    : PathId →
+      PathId →
+      PathId
   | .infimum, .path q   => .path q.below
   | .infimum, .supremum => .path { head := Segment.least, tail := [] }
   | .path p, .supremum  => .path p.ext
@@ -279,7 +338,8 @@ def PathId.between : PathId → PathId → PathId
 
 theorem PathId.between_wellFormed
     (a b : PathId)
-    : (PathId.between a b).WellFormed := by
+    : (PathId.between a b).WellFormed
+    := by
   cases a <;> cases b <;>
     first
       | trivial
@@ -299,7 +359,9 @@ theorem PathId.between_spec
     {a b : PathId}
     (h : PathId.lt a b)
     (hb : b.WellFormed)
-    : PathId.lt a (PathId.between a b) ∧ PathId.lt (PathId.between a b) b := by
+    : PathId.lt a (PathId.between a b) ∧
+      PathId.lt (PathId.between a b) b
+    := by
   cases a with
   | supremum => exact absurd h (PathId.not_supremum_lt _)
   | infimum =>
@@ -334,7 +396,9 @@ theorem PathId.between_spec
                             tail := [{ digit := 7, peer := 2 }] }
   decide (PathId.lt a (PathId.between a b)) && decide (PathId.lt (PathId.between a b) b)
 
-instance : PositionSpec { x : PathId // x.WellFormed } where
+instance
+    : PositionSpec { x : PathId // x.WellFormed }
+    where
   ltPos a b     := PathId.lt a.val b.val
   bottom        := ⟨.infimum, trivial⟩
   top           := ⟨.supremum, trivial⟩
@@ -354,7 +418,8 @@ instance : PositionSpec { x : PathId // x.WellFormed } where
 
 instance instDecidableLtWellFormed
     (a b : { x : PathId // x.WellFormed })
-    : Decidable (a < b) :=
+    : Decidable (a < b)
+    :=
   instDecidablePathIdLt a.val b.val
 
 end Syncordian

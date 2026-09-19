@@ -69,7 +69,8 @@ def MacInjective
     {Payload : Type}
     (mac : Key → Payload → Tag)
     (key : Key)
-    : Prop :=
+    : Prop
+    :=
   ∀ p q, mac key p = mac key q → p = q
 
 namespace StoredSignatures
@@ -94,7 +95,8 @@ def Consistent
     (mac : Key → StoredPayload Position Content Peer Tag → Tag)
     (doc : Document Position Content Peer)
     (signatures : StoredSignatures Peer Key Tag)
-    : Prop :=
+    : Prop
+    :=
   signatures.storedSignature .bottom = signatures.bottomSignature ∧
     signatures.storedSignature .top = signatures.topSignature ∧
       ∀ line ∈ doc.raw.normalLines,
@@ -110,7 +112,8 @@ theorem storedPayload_congr
     (parentRight :
       left.storedSignature line.parentRight =
         right.storedSignature line.parentRight)
-    : left.storedPayload line = right.storedPayload line := by
+    : left.storedPayload line = right.storedPayload line
+    := by
   simp [storedPayload, parentLeft, parentRight]
 
 theorem storedSignature_unique
@@ -125,7 +128,10 @@ theorem storedSignature_unique
     (sameDocumentKey : left.keys.document = right.keys.document)
     (sameBottom : left.bottomSignature = right.bottomSignature)
     (sameTop : left.topSignature = right.topSignature)
-    : ∀ id, (doc.raw.line? id).isSome → left.storedSignature id = right.storedSignature id := by
+    : ∀ id,
+      (doc.raw.line? id).isSome →
+      left.storedSignature id = right.storedSignature id
+    := by
   intro id
   induction id using doc.wellFormed.parentRanked.induction with
   | _ id ih =>
@@ -161,7 +167,8 @@ theorem storedSignature_unique
 def wireTag
     (mac : Key → WirePayload Position Content Peer Tag → Tag)
     (signatures : StoredSignatures Peer Key Tag)
-    : Operation Position Content Peer Tag → Tag
+    : Operation Position Content Peer Tag →
+      Tag
   | .insert id _ position left right supersedes content _ =>
       mac signatures.keys.insert
         (.insert
@@ -185,7 +192,8 @@ def ValidWireTag
     (mac : Key → WirePayload Position Content Peer Tag → Tag)
     (signatures : StoredSignatures Peer Key Tag)
     (operation : Operation Position Content Peer Tag)
-    : Prop :=
+    : Prop
+    :=
   operation.wireTag = signatures.wireTag mac operation
 
 theorem target_eq_of_delete_wireTag_eq
@@ -198,7 +206,9 @@ theorem target_eq_of_delete_wireTag_eq
     (equal :
       signatures.wireTag mac (.delete id a tagA) =
         signatures.wireTag mac (.delete id b tagB))
-    : signatures.storedSignature a = signatures.storedSignature b ∧ a = b := by
+    : signatures.storedSignature a = signatures.storedSignature b ∧
+      a = b
+    := by
   have payload :
       (WirePayload.delete (signatures.storedSignature a) a id) =
         .delete (signatures.storedSignature b) b id :=
@@ -210,21 +220,24 @@ def admissionTag
     (mac : Key → Operation Position Content Peer Tag → Tag)
     (signatures : StoredSignatures Peer Key Tag)
     (operation : Operation Position Content Peer Tag)
-    : Tag :=
+    : Tag
+    :=
   mac signatures.keys.admission operation
 
 def ValidAdmissionTag
     (mac : Key → Operation Position Content Peer Tag → Tag)
     (signatures : StoredSignatures Peer Key Tag)
     (message : Message Position Content Peer Tag)
-    : Prop :=
+    : Prop
+    :=
   message.admissionTag = signatures.admissionTag mac message.operation
 
 def admittedMessage
     (mac : Key → Operation Position Content Peer Tag → Tag)
     (signatures : StoredSignatures Peer Key Tag)
     (operation : Operation Position Content Peer Tag)
-    : Message Position Content Peer Tag :=
+    : Message Position Content Peer Tag
+    :=
   { operation     := operation
     admissionTag  := signatures.admissionTag mac operation }
 
@@ -233,13 +246,16 @@ theorem admission_does_not_bind_writer
     (signatures : StoredSignatures Peer Key Tag)
     (operation : Operation Position Content Peer Tag)
     : ∃ message : Message Position Content Peer Tag,
-        signatures.ValidAdmissionTag mac message ∧ message.operation = operation :=
+      signatures.ValidAdmissionTag mac message ∧
+      message.operation = operation
+    :=
   ⟨signatures.admittedMessage mac operation, rfl, rfl⟩
 
 def NoWireLeak
     (signatures : StoredSignatures Peer Key Tag)
     (trace : WireTrace Position Content Peer Tag)
-    : Prop :=
+    : Prop
+    :=
   ∀ message ∈ trace, ∀ id : LineId Peer,
     message.admissionTag ≠ signatures.storedSignature id ∧
       message.operation.wireTag ≠ signatures.storedSignature id
@@ -249,7 +265,8 @@ theorem NoWireLeak.sublist
     {trace observed : WireTrace Position Content Peer Tag}
     (noLeak : signatures.NoWireLeak trace)
     (subtrace : observed.Sublist trace)
-    : signatures.NoWireLeak observed := by
+    : signatures.NoWireLeak observed
+    := by
   intro message member id
   exact noLeak message (subtrace.subset member) id
 
