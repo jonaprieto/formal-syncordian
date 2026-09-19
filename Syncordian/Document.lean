@@ -107,7 +107,7 @@ def RawDocument.HasPresentParents
     :=
   ∀ line ∈ doc.normalLines,
     (doc.line? line.parentLeft).isSome ∧
-      (doc.line? line.parentRight).isSome
+    (doc.line? line.parentRight).isSome
 
 -- A stored line sits strictly between the positions of its parents.
 def RawDocument.HasParentIntervals
@@ -121,7 +121,7 @@ def RawDocument.HasParentIntervals
       doc.line? line.parentLeft = some left →
       doc.line? line.parentRight = some right →
       left.position < line.position ∧
-        line.position < right.position
+      line.position < right.position
 
 def RawDocument.ParentBefore
     (doc : RawDocument Position Content Peer)
@@ -130,7 +130,7 @@ def RawDocument.ParentBefore
     :=
   ∃ line ∈ doc.normalLines,
     child = .operation line.id ∧
-      (parent = line.parentLeft ∨ parent = line.parentRight)
+    (parent = line.parentLeft ∨ parent = line.parentRight)
 
 -- Every ancestor chain is finite, which is acyclicity for a finite document.
 -- `HasParentIntervals` is spatial correctness; this is the temporal half, and a
